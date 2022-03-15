@@ -12,7 +12,7 @@ const Pool = pg.Pool
 
 // // to use local database
 const pool = new Pool({
-	database: 'cineaste',
+	database: 'postgres',
 	host: 'localhost',
 	port: 5432,
 	user: 'ansh',
