@@ -1,0 +1,37 @@
+{
+	"name": "movie_rating_reviews",
+	"version": "1.0.0",
+	"description": "Backend for movie rating and reviews app.",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"dev": "nodemon index.js"
+	},
+	"keywords": [
+		"backend",
+		"server",
+		"movies",
+		"tv",
+		"shows",
+		"reviews",
+		"rating"
+	],
+	"type": "module",
+	"author": "Ansh Rathod",
+	"engines": {
+		"node": "17.0.1"
+	},
+	"license": "ISC",
+	"dependencies": {
+		"axios": "^0.26.0",
+		"cloudinary": "^1.28.1",
+		"dotenv": "^11.0.0",
+		"express": "^4.17.2",
+		"formidable": "^2.0.1",
+		"moment-timezone": "^0.5.34",
+		"pg": "^8.7.1"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.15"
+	}
+}

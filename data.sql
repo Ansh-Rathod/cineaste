@@ -1,0 +1,110 @@
+SET CLIENT_ENCODING TO 'utf8';
+drop schema public cascade;
+create schema public;
+-- eR5vZ-JcXKaE5Mv
+-- pg_dump -U username -h localhost databasename >> sqlfile.sql
+-- \df public.*
+-- pg_dump -U postgres -h localhost -p 5432 postgres > backup.sql
+
+CREATE TABLE users (
+  id            varchar(255) PRIMARY KEY NOT NULL UNIQUE,
+  username      text NOT NULL UNIQUE,
+  display_name  text NOT NULL,
+  email         varchar(255) NOT NULL UNIQUE,
+  avatar_url    text,
+  backdrop_url  text,
+  bio           text,
+  followers     integer NOT NULL DEFAULT 0,
+  following     integer NOT NULL DEFAULT 0,
+  reviews       integer NOT NULL DEFAULT 0,
+  created       timestamptz NOT NULL DEFAULT current_timestamp
+);
+server {
+    listen 80 default_server;
+listen [::]:80 default_server;
+
+server_name appname.com
+
+index index.html;
+
+root  /var/www/appname.com;
+
+location / {
+  try_files $uri $uri/ =404;
+}
+}
+
+
+
+CREATE TABLE movies(
+  id         varchar(255) PRIMARY KEY NOT NULL,
+  title      text NOT NULL,
+  release    text,
+  rating     float4 NOT NULL,
+  popularity float4 NOT NULL,
+  poster     text,
+  language   text,
+  backdrop   text,
+  overview   text,
+  genres     text[] DEFAULT '{}',
+  adult      boolean NOT NULL DEFAULT false,
+  created    timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+CREATE TABLE tvshows(
+  id         varchar(255) PRIMARY KEY NOT NULL,
+  title      text NOT NULL,
+  release    text,
+  rating     float4 NOT NULL,
+  popularity float4 NOT NULL,
+  poster     text,
+  language   text,
+  backdrop   text,
+  overview   text,
+  genres     text[] DEFAULT '{}',
+  created    timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+CREATE TABLE trending(
+  id         varchar(255) PRIMARY KEY NOT NULL,
+  title      text NOT NULL,
+  release    text,
+  popularity float4 NOT NULL,
+  rating     float4 NOT NULL,
+  poster     text,
+  language   text,
+  backdrop   text,
+  overview   text,
+  genres     text[] DEFAULT '{}',
+  date       text,
+  type       text NOT NULL
+);
+
+
+create index moviestable on movies(id,title);
+create index tvtable on tvshows(id,title);
+
+
+
+-- followers table alter--
+  
+ALTER TABLE followers
+  ADD CONSTRAINT follower_fk FOREIGN KEY (follower_id) REFERENCES users (id)
+  MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE followers
+  ADD CONSTRAINT user_fk FOREIGN KEY (user_id) REFERENCES users (id)
+  MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+-- Don't allow users to follow themselves
+ALTER TABLE followers
+  ADD CONSTRAINT user_id CHECK (user_id != follower_id)
+
+  
+CREATE TRIGGER update_follower_following
+  AFTER INSERT OR UPDATE OR DELETE ON followers
+  FOR EACH ROW EXECUTE PROCEDURE counter_cache('users', 'following', 'follower_id', 'id');
+
+CREATE TRIGGER update_user_followers
+  AFTER INSERT OR UPDATE OR DELETE ON followers
+  FOR EACH ROW EXECUTE PROCEDURE counter_cache('users', 'followers', 'user_id', 'id');
