@@ -15,7 +15,7 @@ const endpoints = [
 	// { year: '1996', page: 291 },
 	// { year: '1997', page: 312 },
 	// { year: '1998', page: 325 },
-	{ year: '2022', page: 414 },
+	// { year: '2022', page: 414 },
 
 	// {
 	// 	start: '2000-01-01',
