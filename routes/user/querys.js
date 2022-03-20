@@ -8,11 +8,21 @@ function createNewUser(data) {
 		[id, username, display_name, email, avatar_url, backdrop_url, bio]
 	)
 }
-function getUser(id, isUsername) {
+function getUser(id, isUsername, username) {
 	if (isUsername) {
-		return pool.query(`select * from users where username = $1`, [id])
+		return pool.query(
+			`select *,(exists  (select 1 from followers
+			where followers.user_id=users.username and followers.follower_id ='${username}')
+		     ) as isfollow from users where users.username = $1`,
+			[id]
+		)
 	} else {
-		return pool.query(`select * from users where id = $1`, [id])
+		return pool.query(
+			`select *,(exists  (select 1 from followers
+			where followers.user_id=users.username and followers.follower_id ='${username}')
+		     ) as isfollow from users where id = $1`,
+			[id]
+		)
 	}
 }
 

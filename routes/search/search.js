@@ -63,11 +63,15 @@ router.get(
 router.get(
 	'/user',
 	asyncHandler(async (req, res, next) => {
-		const { query } = req.query
+		const { query, username } = req.query
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`select id,username,avatar_url,display_name from users where lower(display_name) like '%${query}%' or lower(username) like '%${query}%' order by created desc offset $1 limit 20;`,
+			`select id,username,avatar_url,display_name,
+			(exists  (select 1 from followers
+				where followers.user_id=users.username and followers.follower_id ='${username}')
+			     ) as isfollow
+			from users where lower(display_name) like '%${query}%' or lower(username) like '%${query}%' order by created desc offset $1 limit 20;`,
 			[offset]
 		)
 		res.status(200).send({ success: true, results: rows })

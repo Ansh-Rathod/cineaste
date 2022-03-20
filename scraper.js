@@ -6,6 +6,17 @@ import asyncHandler from './methods/async-function.js'
 const app = express.Router()
 
 const endpoints = [
+	// { year: '1990', page: 291 },
+	// { year: '1991', page: 277 },
+	// { year: '1992', page: 271 },
+	// { year: '1993', page: 276 },
+	// { year: '1994', page: 276 },
+	// { year: '1995', page: 286 },
+	// { year: '1996', page: 291 },
+	// { year: '1997', page: 312 },
+	// { year: '1998', page: 325 },
+	{ year: '2022', page: 414 },
+
 	// {
 	// 	start: '2000-01-01',
 	// 	end: '2000-12-31',
@@ -163,7 +174,7 @@ const endpoints = [
 	// },
 	// {
 	// 	start: '2016-05-01',
-	// 	end: '2016-09-30',           Remaining form last from num 30
+	// 	end: '2016-09-30', //     Remaining form last from num 30
 	// 	page: 440,
 	// },
 	// {
@@ -198,7 +209,7 @@ const endpoints = [
 	// },
 	// {
 	// 	start: '2018-09-15',
-	// 	end: '2018-12-31',    Remail for 225
+	// 	end: '2018-12-31', //  Remail for 225
 	// 	page: 466,
 	// },
 	// {
@@ -213,7 +224,7 @@ const endpoints = [
 	// },
 	// {
 	// 	start: '2019-08-31',
-	// 	end: '2019-11-31',        443
+	// 	end: '2019-11-31', //  443
 	// 	page: 463,
 	// },
 	// {
@@ -262,6 +273,7 @@ const endpoints = [
 	// 	page: 186,
 	// },
 ]
+// `https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
 
 app.get(
 	'/movies',
@@ -271,7 +283,9 @@ app.get(
 			var endpoint = endpoints[j]
 			for (let i = 1; i <= endpoint.page; i++) {
 				const { data } = await axios.get(
-					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
+					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&page=${i.toString()}&include_adult=true&year=${
+						endpoint.year
+					}`
 				)
 
 				for (let index = 0; index < data.results.length; index++) {
@@ -403,58 +417,58 @@ const tvEndpoint = [
 	// 	year: '2009',
 	// 	page: 132,
 	// },
-	{
-		year: '2010',
-		page: 142,
-	},
-	{
-		year: '2011',
-		page: 142,
-	},
-	{
-		year: '2012',
-		page: 148,
-	},
-	{
-		year: '2013',
-		page: 161,
-	},
-	{
-		year: '2014',
-		page: 167,
-	},
-	{
-		year: '2015',
-		page: 198,
-	},
-	{
-		year: '2016',
-		page: 228,
-	},
-	{
-		year: '2017',
-		page: 259,
-	},
-	{
-		year: '2018',
-		page: 380,
-	},
-	{
-		year: '2019',
-		page: 320,
-	},
-	{
-		year: '2020',
-		page: 367,
-	},
-	{
-		year: '2021',
-		page: 425,
-	},
-	{
-		year: '2022',
-		page: 78,
-	},
+	// {
+	// 	year: '2010',
+	// 	page: 142,
+	// },
+	// {
+	// 	year: '2011',
+	// 	page: 142,
+	// },
+	// {
+	// 	year: '2012',
+	// 	page: 148,
+	// },
+	// {
+	// 	year: '2013',
+	// 	page: 161,
+	// },
+	// {
+	// 	year: '2014',
+	// 	page: 167,
+	// },
+	// {
+	// 	year: '2015',
+	// 	page: 198,
+	// },
+	// {
+	// 	year: '2016',
+	// 	page: 228,
+	// },
+	// {
+	// 	year: '2017',
+	// 	page: 259,
+	// },
+	// {
+	// 	year: '2018',
+	// 	page: 380,
+	// },
+	// {
+	// 	year: '2019',
+	// 	page: 320,
+	// },
+	// {
+	// 	year: '2020',
+	// 	page: 367,
+	// },
+	// {
+	// 	year: '2021',
+	// 	page: 425,
+	// },
+	// {
+	// 	year: '2022',
+	// 	page: 78,
+	// },
 ]
 app.get(
 	'/tv',

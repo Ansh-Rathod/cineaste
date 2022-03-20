@@ -19,6 +19,7 @@ function formatResult(rows) {
 			repling_to: row.repling_to,
 			mentions: row.mentions,
 			body: row.body,
+			isLiked: row.liked,
 			created_at: dateFormat(new Date(row.created_at), 'yyyy-mm-dd HH:MM:ss'),
 		}
 	})
@@ -53,7 +54,11 @@ router.get(
 
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions FROM reviews 
+			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,
+			(exists  (select 1 from liked
+				where liked.user_id='${username}' and liked.review_id =reviews.id)
+			     ) as liked
+			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
 			 WHERE creator_username IN 
 			(SELECT user_id FROM followers WHERE follower_id='${username}')and repling_to='{}' order by reviews.created_at desc offset $1 limit 20 ;
@@ -96,12 +101,16 @@ router.put(
 router.get(
 	'/user/:id/thoughts',
 	asyncHandler(async (req, res, next) => {
-		const { page } = req.query
+		const { page, username } = req.query
 		const { id } = req.params
 
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions FROM reviews 
+			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,
+			(exists  (select 1 from liked
+				where liked.user_id='${username}' and liked.review_id =reviews.id)
+			     ) as liked
+			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
 			 WHERE creator_username ='${id}' and repling_to='{}' and movie is null order by reviews.created_at desc offset $1 limit 20;
 			`,
@@ -113,12 +122,16 @@ router.get(
 router.get(
 	'/user/:id/reviews',
 	asyncHandler(async (req, res, next) => {
-		const { page } = req.query
+		const { page, username } = req.query
 		const { id } = req.params
 
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions FROM reviews 
+			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,
+			(exists  (select 1 from liked
+				where liked.user_id='${username}' and liked.review_id =reviews.id)
+			     ) as liked
+			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
 			 WHERE creator_username ='${id}' and repling_to='{}' and movie is not null order by reviews.created_at desc offset $1 limit 20;
 			`,
@@ -131,12 +144,15 @@ router.get(
 router.get(
 	'/replies',
 	asyncHandler(async (req, res, next) => {
-		const { id, page } = req.query
+		const { id, page, username } = req.query
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
 			`
 			select reviews.id,creator_username,display_name,avatar_url,media,
-			likes,replies,body,reviews.created_at,repling_to,mentions 
+			likes,replies,body,reviews.created_at,repling_to,mentions,
+			(exists  (select 1 from liked
+				where liked.user_id='${username}' and liked.review_id =reviews.id)
+			     ) as liked 
 			from replies left join reviews on replies.reply_id=reviews.id
 			left join users on reviews.creator_username =users.username
 			where review_id = '${id}'
@@ -155,17 +171,32 @@ router.get(
 	'/movie/:id',
 	asyncHandler(async function (req, res, next) {
 		const { id } = req.params
-		const { page, type } = req.query
+		const { page, type, username } = req.query
 
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(`
-		SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions FROM reviews 
+		SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,
+		(exists  (select 1 from liked
+			where liked.user_id='${username}' and liked.review_id =reviews.id)
+		     ) as liked
+		FROM reviews 
 		LEFT JOIN users on reviews.creator_username=users.username
 		WHERE movie->>'id'= '${id}'and movie->>'type'='${type}' order by created_at desc offset '${offset}' limit 20;`)
 
 		res.status(200).json({
 			success: true,
 			results: formatResult(rows),
+		})
+	})
+)
+
+router.delete(
+	'/:id/delete',
+	asyncHandler(async (req, res, next) => {
+		await pool.query(`delete from reviews where id = '${req.params.id}'`)
+
+		res.status(202).json({
+			success: true,
 		})
 	})
 )

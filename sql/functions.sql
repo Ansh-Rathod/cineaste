@@ -161,3 +161,37 @@ CREATE OR REPLACE FUNCTION create_new_taggings()
     END;
 $$ LANGUAGE plpgsql;
 
+CREATE FUNCTION make_avg_rating()
+  RETURNS double precision AS $$
+    DECLARE
+    BEGIN
+     RETURN QUERY EXECUTE 'select round(avg((movie->'quote_indent(rating)')::numeric),1) from 
+               reviews where movie->'rating'is not null and movie->>'id'='60574' and movie->>'type'='tv';'
+       
+    END;
+  $$ LANGUAGE plpgsql;
+
+create table apprating(
+  type text,
+  id varchar(255) NOT NULL UNIQUE PRIMARY KEY,
+  rating numeric,
+);
+
+CREATE OR REPLACE FUNCTION update_apprating()
+RETURNS TRIGGER AS $$
+    DECLARE
+    id text;
+    type text;
+
+    BEGIN
+    EXECUTE 'select movie->''id'' as id from reviews where id= $1'
+    USING NEW.id
+    INTO id; 
+    EXECUTE 'select movie->''type'' as id from reviews where id= $1'
+    USING NEW.id
+    INTO type; 
+    PERFORM make_avg_rating(id,type);
+    END; 
+$$ LANGUAGE plpgsql;
+
+update_apprating()

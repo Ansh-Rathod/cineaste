@@ -31,7 +31,7 @@ router.post(
 router.get(
 	'/:id',
 	asyncHandler(async (req, res, next) => {
-		const { rows } = await getUser(req.params.id, true)
+		const { rows } = await getUser(req.params.id, true, req.query.username)
 		res.status(200).json({ success: true, results: rows[0] ?? {} })
 	})
 )
@@ -89,9 +89,20 @@ router.post(
 router.get(
 	'/following/:id',
 	asyncHandler(async (req, res, next) => {
+		const { username, page } = req.query
+		const offset = (page ?? 0) * 20
+
 		const { rows } = await pool.query(
-			'select id,username from followers left join users on followers.user_id = users.username where follower_id = $1;',
-			[req.params.id]
+			`
+		select users.id,users.username,users.display_name,users.avatar_url,
+		(exists  (select 1 from followers
+		where followers.user_id=users.username
+		and followers.follower_id = '${username}')
+		) as isfollow
+		from followers left join users 
+		on followers.user_id = users.username where follower_id = $1 
+		order by followers.created desc offset $2 limit 20`,
+			[req.params.id, offset]
 		)
 		res.status(200).json({ success: true, results: rows })
 	})
@@ -99,9 +110,20 @@ router.get(
 router.get(
 	'/followers/:id',
 	asyncHandler(async (req, res, next) => {
+		const { username, page } = req.query
+		const offset = (page ?? 0) * 20
+
 		const { rows } = await pool.query(
-			'select id,username from followers left join users on followers.follower_id = users.username where user_id = $1;',
-			[req.params.id]
+			`
+			select users.id,users.username,users.display_name,users.avatar_url,
+						(exists  (select 1 from followers
+							where followers.user_id=users.username
+					    and followers.follower_id = '${username}')
+						     ) as isfollow
+			from followers left join users 
+			on followers.follower_id = users.username where user_id = $1 
+			order by followers.created desc offset $2 limit 20;`,
+			[req.params.id, offset]
 		)
 		res.status(200).json({ success: true, results: rows })
 	})

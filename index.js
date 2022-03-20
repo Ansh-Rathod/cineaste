@@ -3,9 +3,11 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import errorHandler from './middlewares/error-handler.js'
+import favoriteRoute from './routes/favorites/favorite.js'
 import mediaRoute from './routes/media/upload-media.js'
 import moviesRoute from './routes/movies/movies.js'
 import personRoute from './routes/person/person.js'
+import reportRoute from './routes/report/report_review.js'
 import reviewRoute from './routes/reviews/reviews.js'
 import searchRoute from './routes/search/search.js'
 import tvRoute from './routes/tv/tv.js'
@@ -33,6 +35,8 @@ app.use('/api/v1/search', searchRoute)
 app.use('/api/v1/reviews', reviewRoute)
 app.use('/api/v1/media', mediaRoute)
 app.use('/api/v1/person', personRoute)
+app.use('/api/v1/report', reportRoute)
+app.use('/api/v1/favorite', favoriteRoute)
 app.use('/scraper', scaper)
 
 //

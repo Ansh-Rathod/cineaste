@@ -95,10 +95,17 @@ router.get(
 			timeZone: 'Europe/Amsterdam',
 		})
 		var currentdate = new Date(date)
+		const { username } = req.query
 
 		var week = getWeek(currentdate)
 		const { rows } = await pool.query(
-			`select * from movie_info where id='${req.params.id}'and week_num='${week}'; `
+			`select *,
+			(exists  (select 1 from favorites
+				where favorites.username='${username}'
+		    and favorites.media_id = movie_info.id and favorites.media_type='movie')
+			     ) as isFavorited,
+			(select rating from apprating where id = movie_info.id and type='movie') as rating_by_app			
+			from movie_info where id='${req.params.id}'and week_num='${week}'; `
 		)
 		if (rows.length === 0) {
 			axios
@@ -134,8 +141,12 @@ router.get(
 						spoken_languages,week_num
 						)
 						values
-						($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) returning *`,
-
+						($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) returning *,
+						(exists  (select 1 from favorites
+							where favorites.username='${username}'
+					    and favorites.media_id = movie_info.id and favorites.media_type='movie')
+						     ) as isFavorited,
+						(select rating from apprating where id = '${data.data.id}' and type='movie') as rating_by_app`,
 						[
 							data.data.id,
 							data.data.title,
@@ -209,17 +220,16 @@ router.get(
 router.get(
 	'/by/language',
 	asyncHandler(async (req, res, next) => {
-		const { page, language, release_year } = req.query
-		const offset = (page ?? 0) * 20
+		const { language } = req.query
 		const { rows } = await pool.query(
 			`select id,
 			title,
 			release,
 			poster,
-			rating
-			from movies 
-			where language =$1 order by popularity desc offset $2 limit 20;`,
-			[language, offset]
+			rating from movies
+			where language = $1 and adult = false and poster is not null order by popularity desc offset 
+			(random()*(((select count(*) from movies where language =$1)/3)))limit 20;`,
+			[language]
 		)
 
 		res.status(200).json({ success: true, results: rows })

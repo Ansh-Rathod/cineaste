@@ -19,20 +19,6 @@ CREATE TABLE users (
   reviews       integer NOT NULL DEFAULT 0,
   created       timestamptz NOT NULL DEFAULT current_timestamp
 );
-server {
-    listen 80 default_server;
-listen [::]:80 default_server;
-
-server_name appname.com
-
-index index.html;
-
-root  /var/www/appname.com;
-
-location / {
-  try_files $uri $uri/ =404;
-}
-}
 
 
 
@@ -108,3 +94,18 @@ CREATE TRIGGER update_follower_following
 CREATE TRIGGER update_user_followers
   AFTER INSERT OR UPDATE OR DELETE ON followers
   FOR EACH ROW EXECUTE PROCEDURE counter_cache('users', 'followers', 'user_id', 'id');
+
+
+
+CREATE TABLE favorites(
+
+  id            uuid PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+  username       varchar(255) NOT NULL,
+  media_id      varchar(255) NOT NULL,
+  media_type    text NOT NULL,
+  media_title   varchar(255) NOT NULL,
+  media_poster  text NOT NULL,
+  media_release text NOT NULL,
+  created       timestamptz NOT NULL DEFAULT current_timestamp
+);
+

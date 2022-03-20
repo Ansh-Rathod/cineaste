@@ -94,3 +94,19 @@ ALTER TABLE replies
 CREATE TRIGGER update_review_replies
   AFTER INSERT OR UPDATE OR DELETE ON replies
   FOR EACH ROW EXECUTE PROCEDURE counter_cache_for_uuid('reviews', 'replies', 'review_id', 'id');
+
+
+CREATE table report_reviews(
+  review_id uuid NOT NULL,
+  reportd_by text,
+  created_at timestamptz NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY(review_id,reportd_by)
+)
+
+ALTER TABLE report_reviews
+  ADD CONSTRAINT review_fk FOREIGN KEY (review_id) REFERENCES reviews (id)
+  MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE report_reviews
+  ADD CONSTRAINT reported_by_fk FOREIGN KEY (reportd_by) REFERENCES users (username)
+  MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;

@@ -10,12 +10,21 @@ const Pool = pg.Pool
 // 	},
 // })
 
-// // to use local database
+// // digital ocean database
+// const pool = new Pool({
+// 	database: 'postgres',
+// 	host: 'localhost',
+// 	port: 5432,
+// 	user: 'ansh',
+// 	password: 'ansh00',
+// })
+
+// local databale
 const pool = new Pool({
 	database: 'postgres',
 	host: 'localhost',
 	port: 5432,
-	user: 'ansh',
+	user: 'postgres',
 	password: 'ansh00',
 })
 
