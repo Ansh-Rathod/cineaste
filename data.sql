@@ -5,6 +5,7 @@ create schema public;
 -- pg_dump -U username -h localhost databasename >> sqlfile.sql
 -- \df public.*
 -- pg_dump -U postgres -h localhost -p 5432 postgres > backup.sql
+-- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ansh;
 
 CREATE TABLE users (
   id            varchar(255) PRIMARY KEY NOT NULL UNIQUE,

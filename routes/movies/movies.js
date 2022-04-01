@@ -15,7 +15,9 @@ router.get(
 	asyncHandler(async (req, res, next) => {
 		var a = moment.tz(new Date(), 'America/Los_Angeles').format('YYYY-MM-DD')
 		const { rows } = await pool.query(
-			`select id,title,release,rating,poster,language,backdrop,overview,genres,type from trending where date='${a}' and type='movie'`
+			`select id,title,release,rating,poster,language,backdrop,overview,genres,type, 
+			(select rating from apprating where id = trending.id and type='movie') as rating_by_app
+			from trending where date='${a}' and type='movie';`
 		)
 		if (rows.length === 0) {
 			axios
@@ -37,10 +39,8 @@ router.get(
 						 genres,
 						 date,
 						 type,
-						 popularity
-						 )
-					 values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-					 ;`,
+						 popularity)
+						  values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);`,
 							[
 								movie.id,
 								movie.title,
@@ -104,6 +104,10 @@ router.get(
 				where favorites.username='${username}'
 		    and favorites.media_id = movie_info.id and favorites.media_type='movie')
 			     ) as isFavorited,
+			(exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		    and reviews.movie->>'id' = movie_info.id and reviews.movie->>'type'='movie')
+			     ) as isReviewd,
 			(select rating from apprating where id = movie_info.id and type='movie') as rating_by_app			
 			from movie_info where id='${req.params.id}'and week_num='${week}'; `
 		)
@@ -146,6 +150,10 @@ router.get(
 							where favorites.username='${username}'
 					    and favorites.media_id = movie_info.id and favorites.media_type='movie')
 						     ) as isFavorited,
+						     (exists  (select 1 from reviews
+							where reviews.creator_username='${username}'
+					    and reviews.movie->>'id' = movie_info.id and reviews.movie->>'type'='movie')
+						     ) as isReviewd,
 						(select rating from apprating where id = '${data.data.id}' and type='movie') as rating_by_app`,
 						[
 							data.data.id,
@@ -227,8 +235,7 @@ router.get(
 			release,
 			poster,
 			rating from movies
-			where language = $1 and adult = false and poster is not null order by popularity desc offset 
-			(random()*(((select count(*) from movies where language =$1)/3)))limit 20;`,
+			where language = $1 and adult = false and poster is not null and release like '2022-03%' order by popularity desc limit 20;`,
 			[language]
 		)
 

@@ -35,6 +35,20 @@ AFTER INSERT OR UPDATE ON reviews
 FOR EACH ROW EXECUTE PROCEDURE create_new_taggings();
 
 
+
+CREATE TABLE mentions (
+  user_id   text NOT NULL,
+  review_id  uuid NOT NULL,
+  PRIMARY KEY(user_id, review_id)
+);
+
+
+ALTER TABLE mentions
+  ADD CONSTRAINT tweet_fk FOREIGN KEY (review_id) REFERENCES reviews (id)
+  MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+
 CREATE TABLE taggings (
   tag_id    uuid NOT NULL,
   review_id  uuid NOT NULL,
@@ -76,6 +90,8 @@ CREATE TRIGGER update_review_favorites
   AFTER INSERT OR UPDATE OR DELETE ON liked
   FOR EACH ROW EXECUTE PROCEDURE counter_cache_for_uuid('reviews', 'likes', 'review_id', 'id');
 
+
+
 CREATE TABLE replies (
   review_id  uuid NOT NULL,
   reply_id  uuid NOT NULL,
@@ -110,3 +126,29 @@ ALTER TABLE report_reviews
 ALTER TABLE report_reviews
   ADD CONSTRAINT reported_by_fk FOREIGN KEY (reportd_by) REFERENCES users (username)
   MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+  
+
+
+CREATE OR REPLACE FUNCTION create_new_mentions()
+  RETURNS trigger AS $$
+    DECLARE
+      username text;
+    BEGIN
+      FOREACH username IN ARRAY NEW.mentions LOOP
+        BEGIN
+
+            INSERT INTO mentions (user_id, review_id)
+            VALUES (username, NEW.id);
+        END;
+      END LOOP;
+
+      RETURN NEW;
+    END;
+  $$ LANGUAGE plpgsql;
+
+  CREATE TRIGGER create_taggings
+  AFTER INSERT OR UPDATE ON reviews
+  FOR EACH ROW EXECUTE PROCEDURE create_new_taggings();
+
+
+  

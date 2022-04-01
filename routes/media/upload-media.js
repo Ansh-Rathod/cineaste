@@ -6,9 +6,9 @@ import asyncHandler from './../../methods/async-function.js'
 const { IncomingForm } = formidable
 
 cloudinary.v2.config({
-	cloud_name: 'dornu6mmy',
-	api_key: '459913161249364',
-	api_secret: '9z9buL0YNMYG1aB8w4wh8gaP-3s',
+	cloud_name: 'cineaste-app',
+	api_key: '116695171523723',
+	api_secret: 'TWGTAsRUbKtUeN2MrLsZCspPjK4',
 })
 
 const router = express.Router()

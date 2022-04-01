@@ -81,3 +81,35 @@ create table person(
   week_num integer,
   PRIMARY KEY(id)
 )
+
+
+CREATE TABLE notifications(
+   id         uuid UNIQUE PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+   owner_username text,
+   owner_review_id uuid,
+   owner_review_body text,
+   reactor_username text,
+   rector_body text,
+   rector_reply_id uuid,
+   message_type text,
+   active boolean NOT NULL DEFAULT true,
+   created_at    timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+
+ALTER TABLE notifications
+ADD CONSTRAINT notiuser_fk FOREIGN KEY (reactor_username) REFERENCES users(username)
+MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+
+ALTER TABLE notifications
+ADD CONSTRAINT review_fk FOREIGN KEY (owner_review_id) REFERENCES reviews(id)
+MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE notifications
+ADD CONSTRAINT reply_fk FOREIGN KEY (rector_reply_id) REFERENCES reviews(id)
+MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+

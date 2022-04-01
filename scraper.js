@@ -272,6 +272,10 @@ const endpoints = [
 	// 	end: '2021-12-31',
 	// 	page: 186,
 	// },
+	{
+		year: '2022',
+		page: 466,
+	},
 ]
 // `https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
 
@@ -304,7 +308,17 @@ app.get(
 						 popularity,
 						 adult)
                                values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-                               on conflict (id) do nothing;`,
+                               on conflict (id) do update set 
+					 title=$2,
+					 release=$3,
+					 rating=$4,
+					 poster=$5,
+					 language=$6,
+					 backdrop=$7,
+					 overview=$8,
+					 genres=$9,
+					 popularity=$10,
+					 adult=$11;`,
 						[
 							movie.id,
 							movie.title,
@@ -320,13 +334,9 @@ app.get(
 						]
 					)
 				}
-				console.log(
-					`>>>> from ${endpoint.start} to ${endpoint.end} total ${endpoint.page} pages of ${i} scraped..`
-				)
+				console.log(`>>>>  total ${endpoint.page} pages of ${i} scraped..`)
 			}
-			console.log(
-				`\n//////${endpoint.start}-${endpoint.end} completed//////\n\n\n\n`
-			)
+			console.log(`\n completed//////\n\n\n\n`)
 		}
 		res.json('done')
 	})
@@ -465,10 +475,10 @@ const tvEndpoint = [
 	// 	year: '2021',
 	// 	page: 425,
 	// },
-	// {
-	// 	year: '2022',
-	// 	page: 78,
-	// },
+	{
+		year: '2022',
+		page: 125,
+	},
 ]
 app.get(
 	'/tv',
@@ -495,7 +505,16 @@ app.get(
 						 popularity,
 						 genres)
                                values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-                               on conflict (id) do nothing;`,
+                               on conflict (id) do update set
+					 title=$2,
+					 release=$3,
+					 rating=$4,
+					 poster=$5,
+					 language=$6,
+					 backdrop=$7,
+					 overview=$8,
+					 popularity=$9,
+					 genres=$10;`,
 						[
 							movie.id,
 							movie.name,

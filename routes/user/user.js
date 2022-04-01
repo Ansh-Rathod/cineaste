@@ -129,4 +129,38 @@ router.get(
 	})
 )
 
+router.get(
+	'/suggested/:username',
+	asyncHandler(async (req, res, next) => {
+		const { username } = req.params
+		const { page } = req.query
+		const offset = (page ?? 0) * 20
+		const { rows } = await pool.query(
+			`select username,display_name,avatar_url, (exists  (select 1 from followers
+			where followers.user_id=users.username
+			and followers.follower_id = '${username}')) as isfollow
+			from users limit 20;`
+		)
+		res.status(200).json({ success: true, results: rows })
+	})
+)
+
+router.post(
+	'/update/profile',
+	asyncHandler(async (req, res, next) => {
+		const { name, bio, backdrop, profile, username } = req.body
+		await pool.query(
+			`update users set
+			display_name=$1,
+			avatar_url=$2,
+			backdrop_url=$3,
+			bio=$4 
+			where username=$5
+			`,
+			[name, profile, backdrop, bio, username]
+		)
+		res.status(200).json({ success: true })
+	})
+)
+
 export default router

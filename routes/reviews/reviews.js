@@ -20,6 +20,8 @@ function formatResult(rows) {
 			mentions: row.mentions,
 			body: row.body,
 			isLiked: row.liked,
+			isReported: row.reported,
+			thought_on: row.thought_on,
 			created_at: dateFormat(new Date(row.created_at), 'yyyy-mm-dd HH:MM:ss'),
 		}
 	})
@@ -28,13 +30,14 @@ router.post(
 	'/new',
 	asyncHandler(async (req, res, next) => {
 		const { rows } = await pool.query(
-			`insert into reviews (creator_username,body,media,movie,repling_to) values ($1,$2,$3,$4,$5) returning *`,
+			`insert into reviews (creator_username,body,media,movie,repling_to,thought_on) values ($1,$2,$3,$4,$5,$6) returning *`,
 			[
 				req.body.username,
 				req.body.body,
 				req.body.media,
 				req.body.movie,
 				req.body.repling_to,
+				req.body.thought_on,
 			]
 		)
 		if (req.body.isReply) {
@@ -54,10 +57,12 @@ router.get(
 
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,
+			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
 			(exists  (select 1 from liked
 				where liked.user_id='${username}' and liked.review_id =reviews.id)
-			     ) as liked
+			     ) as liked,
+			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}'))
+			reported
 			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
 			 WHERE creator_username IN 
@@ -107,9 +112,11 @@ router.get(
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
 			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,
-			(exists  (select 1 from liked
+			thought_on,(exists  (select 1 from liked
 				where liked.user_id='${username}' and liked.review_id =reviews.id)
-			     ) as liked
+			     ) as liked,
+			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
+			reported
 			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
 			 WHERE creator_username ='${id}' and repling_to='{}' and movie is null order by reviews.created_at desc offset $1 limit 20;
@@ -128,9 +135,11 @@ router.get(
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
 			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,
-			(exists  (select 1 from liked
+			thought_on,(exists  (select 1 from liked
 				where liked.user_id='${username}' and liked.review_id =reviews.id)
-			     ) as liked
+			     ) as liked,
+			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
+			reported
 			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
 			 WHERE creator_username ='${id}' and repling_to='{}' and movie is not null order by reviews.created_at desc offset $1 limit 20;
@@ -149,10 +158,12 @@ router.get(
 		const { rows } = await pool.query(
 			`
 			select reviews.id,creator_username,display_name,avatar_url,media,
-			likes,replies,body,reviews.created_at,repling_to,mentions,
+			thought_on,likes,replies,body,reviews.created_at,repling_to,mentions,
 			(exists  (select 1 from liked
 				where liked.user_id='${username}' and liked.review_id =reviews.id)
-			     ) as liked 
+			     ) as liked,
+			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
+			reported
 			from replies left join reviews on replies.reply_id=reviews.id
 			left join users on reviews.creator_username =users.username
 			where review_id = '${id}'
@@ -178,10 +189,38 @@ router.get(
 		SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,
 		(exists  (select 1 from liked
 			where liked.user_id='${username}' and liked.review_id =reviews.id)
-		     ) as liked
+		     ) as liked,
+		     (exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
+		     reported
 		FROM reviews 
 		LEFT JOIN users on reviews.creator_username=users.username
 		WHERE movie->>'id'= '${id}'and movie->>'type'='${type}' order by created_at desc offset '${offset}' limit 20;`)
+
+		res.status(200).json({
+			success: true,
+			results: formatResult(rows),
+		})
+	})
+)
+
+router.get(
+	'/movie/:id/thoughts',
+	asyncHandler(async function (req, res, next) {
+		const { id } = req.params
+		const { page, type, username } = req.query
+
+		const offset = (page ?? 0) * 20
+		const { rows } = await pool.query(`
+		SELECT reviews.id,creator_username,display_name,avatar_url,media,likes,replies,body,reviews.created_at,repling_to,mentions,
+		thought_on,
+		(exists  (select 1 from liked
+			where liked.user_id='${username}' and liked.review_id =reviews.id)
+		     ) as liked,
+		     (exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
+		     reported
+		FROM reviews 
+		LEFT JOIN users on reviews.creator_username=users.username
+		WHERE thought_on->>'id'= '${id}'and thought_on->>'type'='${type}' order by created_at desc offset '${offset}' limit 20;`)
 
 		res.status(200).json({
 			success: true,
@@ -198,6 +237,70 @@ router.delete(
 		res.status(202).json({
 			success: true,
 		})
+	})
+)
+
+router.get(
+	'/liked/review/:id',
+	asyncHandler(async (req, res, next) => {
+		const { username, page } = req.query
+		const { id } = req.params
+		const offset = (page ?? 0) * 20
+		const { rows } = await pool.query(
+			`select display_name,avatar_url,username,
+		(exists  (select 1 from followers where followers.user_id=users.username
+		and followers.follower_id = '${username}')) as isfollow
+		from liked left join users on liked.user_id=users.username
+	      where review_id='${id}' offset $1 limit 20;`,
+
+			[offset]
+		)
+		res.status(200).json({
+			success: true,
+			results: rows,
+		})
+	})
+)
+
+router.get(
+	'/previous/reply/:id',
+	asyncHandler(async (req, res, next) => {
+		const { id } = req.params
+		const { username } = req.query
+		const { rows } = await pool.query(
+			`select reviews.id,creator_username,display_name,avatar_url,media,
+			movie,
+			thought_on,likes,replies,body,reviews.created_at,repling_to,mentions,
+			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
+			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}')) reported
+			from reviews 
+			left join users on reviews.creator_username =users.username where
+			reviews.id=(select review_id from replies where reply_id='${id}' );
+			`
+		)
+
+		res.status(200).send({ success: true, results: formatResult(rows) })
+	})
+)
+
+router.get(
+	'/review/:id',
+	asyncHandler(async (req, res, next) => {
+		const { id } = req.params
+		const { username } = req.query
+		const { rows } = await pool.query(
+			`select reviews.id,creator_username,display_name,avatar_url,media,
+			movie,
+			thought_on,likes,replies,body,reviews.created_at,repling_to,mentions,
+			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
+			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}')) reported
+			from reviews 
+			left join users on reviews.creator_username =users.username where
+			reviews.id='${id}';
+			`
+		)
+
+		res.status(200).send({ success: true, results: formatResult(rows) })
 	})
 )
 

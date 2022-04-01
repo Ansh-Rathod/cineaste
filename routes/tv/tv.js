@@ -15,7 +15,9 @@ router.get(
 	asyncHandler(async (req, res, next) => {
 		var a = moment.tz(new Date(), 'America/Los_Angeles').format('YYYY-MM-DD')
 		const { rows } = await pool.query(
-			`select id,title,release,rating,poster,language,backdrop,overview,genres from trending where date='${a}' and type='tv'`
+			`select id,title,release,rating,poster,language,backdrop,overview,genres,
+			(select rating from apprating where id = trending.id and type='tv') as rating_by_app
+			from trending where date='${a}' and type='tv'`
 		)
 		if (rows.length === 0) {
 			axios
@@ -97,8 +99,7 @@ router.get(
 			release,
 			poster,
 			rating from tvshows
-			where language =$1 and poster is not null order by popularity desc offset 
-			(random()*(select count(*) from tvshows where language =$1)/3)limit 20;`,
+			where language =$1 and poster is not null and rating > 1 and release like '2022-03%' order by popularity desc limit 20;`,
 			[language]
 		)
 
@@ -121,6 +122,10 @@ router.get(
 				where favorites.username='${username}'
 		    and favorites.media_id = tv_info.id and favorites.media_type='tv')
 			     ) as isFavorited,
+			     (exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		    and reviews.movie->>'id' = tv_info.id and reviews.movie->>'type'='tv')
+			     ) as isReviewd,
 			(select rating from apprating where id = tv_info.id and type='tv') as rating_by_app
 			from tv_info where id='${req.params.id}' and week_num='${week}'; `
 		)
@@ -164,6 +169,10 @@ router.get(
 							where favorites.username='${username}'
 					    and favorites.media_id = tv_info.id and favorites.media_type='tv')
 						     ) as isFavorited,
+						     (exists  (select 1 from reviews
+							where reviews.creator_username='${username}'
+					    and reviews.movie->>'id' = tv_info.id and reviews.movie->>'type'='tv')
+						     ) as isReviewd,
 						(select rating from apprating where id = '${data.data.id}' and type='tv') as rating_by_app
 						`,
 
