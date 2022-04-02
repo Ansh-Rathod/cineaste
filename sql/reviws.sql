@@ -150,5 +150,3 @@ CREATE OR REPLACE FUNCTION create_new_mentions()
   AFTER INSERT OR UPDATE ON reviews
   FOR EACH ROW EXECUTE PROCEDURE create_new_taggings();
 
-
-  

@@ -1,3 +1,4 @@
+import axios from 'axios'
 import express from 'express'
 import pool from '../../db.js'
 import asyncHandler from '../../methods/async-function.js'
@@ -26,6 +27,29 @@ function formatResult(rows) {
 		}
 	})
 }
+function sendNotification(id, heading, body, icon) {
+	axios({
+		method: 'POST',
+		url: `https://onesignal.com/api/v1/notifications`,
+		headers: {
+			'Content-Type': 'application/json; charset=UTF-8',
+		},
+		data: {
+			app_id: 'f6c7d71f-01af-4791-a073-bedca73e3eb9',
+			include_player_ids: [id],
+			android_accent_color: 'FFB319',
+			small_icon: 'ic_stat_onesignal_default',
+			large_icon: icon,
+			headings: {
+				en: heading,
+			},
+			contents: {
+				en: body,
+			},
+		},
+	})
+}
+
 router.post(
 	'/new',
 	asyncHandler(async (req, res, next) => {
@@ -42,9 +66,23 @@ router.post(
 		)
 		if (req.body.isReply) {
 			await pool.query(
-				`insert into replies (review_id,reply_id) values ($1,$2);`,
+				`insert into replies (review_id,reply_id) values ($1,$2) ;`,
 				[req.body.repling_to_review_id, rows[0].id]
 			)
+			if (req.body.repling_to[0] !== req.body.username) {
+				const data = await pool.query(
+					`select token_id,
+					(select avatar_url from users where users.username = $2) as avatar_url
+					from users where username =$1`,
+					[req.body.repling_to[0], req.body.username]
+				)
+				sendNotification(
+					data.rows[0].token_id,
+					'@' + req.body.username + ' replied to you.',
+					req.body.body,
+					data.rows[0].avatar_url
+				)
+			}
 		}
 		res.status(201).json({ success: true, results: rows[0] })
 	})

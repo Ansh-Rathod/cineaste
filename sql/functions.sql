@@ -266,6 +266,27 @@ $$ LANGUAGE plpgsql;
 
 
 
+CREATE OR REPLACE FUNCTION remove_reported()
+  RETURNS trigger AS $$
+    DECLARE 
+      report_count integer;
+    BEGIN
+       IF TG_OP = 'INSERT' THEN
+          EXECUTE 'select count(*) from report_reviews where review_id=$1;'
+          USING NEW.review_id
+          INTO report_count;
+          IF (report_count > 5) THEN 
+              EXECUTE 'delete from reviews where id=$1;' 
+              USING NEW.review_id;
+          END IF;
+      END IF;
+     
+    RETURN NEW;
+    END; 
+$$ LANGUAGE plpgsql;
+
+
+
 
 
 

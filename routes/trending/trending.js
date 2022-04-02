@@ -99,8 +99,9 @@ router.get(
 			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}')) reported
 			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
-			where created_at > current_date - interval '2 days' 
-                  order by likes desc offset $1 limit 20;
+
+			where created_at > current_date - interval '2 days' and repling_to='{}'
+			order by likes desc offset $1 limit 20;
 			`,
 			[offset]
 		)

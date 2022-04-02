@@ -1,3 +1,4 @@
+import axios from 'axios'
 import express from 'express'
 import pool from '../../db.js'
 import asyncHandler from '../../methods/async-function.js'
@@ -18,6 +19,10 @@ router.post(
 				results: await (await getUser(req.body.id, false)).rows[0],
 			})
 		} else {
+			await pool.query(`update users set token_id = $1 where id = $2;`, [
+				req.body.token_id,
+				req.body.id,
+			])
 			res.status(200).json({
 				success: true,
 				status: 200,
@@ -27,6 +32,28 @@ router.post(
 		}
 	})
 )
+function sendNotification(id, heading, body, icon) {
+	axios({
+		method: 'POST',
+		url: `https://onesignal.com/api/v1/notifications`,
+		headers: {
+			'Content-Type': 'application/json; charset=UTF-8',
+		},
+		data: {
+			app_id: 'f6c7d71f-01af-4791-a073-bedca73e3eb9',
+			include_player_ids: [id],
+			android_accent_color: 'FFB319',
+			small_icon: 'ic_stat_onesignal_default',
+			large_icon: icon,
+			headings: {
+				en: heading,
+			},
+			contents: {
+				en: body,
+			},
+		},
+	})
+}
 
 router.get(
 	'/:id',
@@ -70,6 +97,20 @@ router.post(
 		const { rows } = await pool.query(
 			'insert into followers (user_id,follower_id) values($1,$2)',
 			[user_id, follower_id]
+		)
+
+		const data = await pool.query(
+			`select token_id,
+			(select display_name from users where username=$2) as name,
+			(select avatar_url from users where username=$2) as avatar_url
+			from users where username=$1`,
+			[user_id, follower_id]
+		)
+		sendNotification(
+			data.rows[0].token_id,
+			'@' + follower_id,
+			`${data.rows[0].name} started following you`,
+			data.rows[0].avatar_url
 		)
 		res.status(200).json({ success: true, results: rows[0] })
 	})
