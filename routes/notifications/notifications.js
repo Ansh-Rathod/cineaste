@@ -1,10 +1,33 @@
 import express from 'express'
 import pool from '../../db.js'
 import asyncHandler from '../../methods/async-function.js'
-import dateFormat from '../../methods/get_time.js'
 
 const router = express.Router()
 
+function formateTime(time) {
+	function padTo2Digits(num) {
+		return num.toString().padStart(2, '0')
+	}
+
+	function formatDate(date) {
+		return (
+			[
+				date.getFullYear(),
+				padTo2Digits(date.getMonth() + 1),
+				padTo2Digits(date.getDate()),
+			].join('-') +
+			' ' +
+			[
+				padTo2Digits(date.getHours()),
+				padTo2Digits(date.getMinutes()),
+				padTo2Digits(date.getSeconds()),
+			].join(':')
+		)
+	}
+	const now = new Date(time)
+	const date = formatDate(now)
+	return date
+}
 router.get(
 	'/:username',
 	asyncHandler(async (req, res, next) => {
@@ -34,10 +57,7 @@ router.get(
 					active: row.active,
 					display_name: row.display_name,
 					avatar_url: row.avatar_url,
-					created_at: dateFormat(
-						new Date(row.created_at),
-						'yyyy-mm-dd HH:MM:ss'
-					),
+					created_at: formateTime(row.created_at),
 				}
 			}),
 		})
