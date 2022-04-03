@@ -55,6 +55,7 @@ app.get('/', (req, res) => {
 	const now = new Date('2022-04-03 11:03:56.535205+05:30')
 	res.json(formatDate(now))
 })
+
 app.use('/api/v1/user', userRoute)
 app.use('/api/v1/movies', moviesRoute)
 app.use('/api/v1/tv', tvRoute)
