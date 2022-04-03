@@ -1,6 +1,5 @@
 //
 // imports
-import date from 'date-and-time'
 import dotenv from 'dotenv'
 import express from 'express'
 import errorHandler from './middlewares/error-handler.js'
