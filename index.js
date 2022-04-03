@@ -1,5 +1,6 @@
 //
 // imports
+import date from 'date-and-time'
 import dotenv from 'dotenv'
 import express from 'express'
 import errorHandler from './middlewares/error-handler.js'
@@ -16,6 +17,7 @@ import trendingRoute from './routes/trending/trending.js'
 import tvRoute from './routes/tv/tv.js'
 import userRoute from './routes/user/user.js'
 import scaper from './scraper.js'
+
 //
 // configure environment variables
 dotenv.config({ path: '.env' })
@@ -30,7 +32,29 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
 // initialize routes
-app.get('/', (req, res) => res.json('welcome to the cineaste api'))
+app.get('/', (req, res) => {
+	function padTo2Digits(num) {
+		return num.toString().padStart(2, '0')
+	}
+
+	function formatDate(date) {
+		return (
+			[
+				date.getFullYear(),
+				padTo2Digits(date.getMonth() + 1),
+				padTo2Digits(date.getDate()),
+			].join('-') +
+			' ' +
+			[
+				padTo2Digits(date.getHours()),
+				padTo2Digits(date.getMinutes()),
+				padTo2Digits(date.getSeconds()),
+			].join(':')
+		)
+	}
+	const now = new Date('2022-04-03 11:03:56.535205+05:30')
+	res.json(formatDate(now))
+})
 app.use('/api/v1/user', userRoute)
 app.use('/api/v1/movies', moviesRoute)
 app.use('/api/v1/tv', tvRoute)
