@@ -145,7 +145,7 @@ router.put(
 	asyncHandler(async (req, res, next) => {
 		const { id } = req.query
 		const { text } = req.body
-		await pool.query(`update reviews set body=$2 where id=$1)`, [id, text])
+		await pool.query(`update reviews set body=$2 where id=$1;`, [id, text])
 		res.status(200).json({ success: true })
 	})
 )
