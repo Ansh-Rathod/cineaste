@@ -96,6 +96,12 @@ CREATE TABLE notifications(
    created_at    timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+owner_username,
+rector_body,
+reactor_username,
+rector_reply_id,
+message_type
+
 
 ALTER TABLE notifications
 ADD CONSTRAINT notiuser_fk FOREIGN KEY (reactor_username) REFERENCES users(username)

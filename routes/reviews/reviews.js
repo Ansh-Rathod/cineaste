@@ -74,6 +74,44 @@ function sendNotification(id, heading, body, icon) {
 	})
 }
 
+function sendMultiNotification(id, heading, body, icon) {
+	axios({
+		method: 'POST',
+		url: `https://onesignal.com/api/v1/notifications`,
+		headers: {
+			'Content-Type': 'application/json; charset=UTF-8',
+		},
+		data: {
+			app_id: 'f6c7d71f-01af-4791-a073-bedca73e3eb9',
+			include_player_ids: id,
+			android_accent_color: 'FFB319',
+			small_icon: 'ic_stat_onesignal_default',
+			large_icon: icon,
+			headings: {
+				en: heading,
+			},
+			contents: {
+				en: body,
+			},
+		},
+	})
+}
+async function getToken(ids) {
+	let token_ids = []
+	for (let i = 0; i < ids.length; i++) {
+		const newdata = await pool.query(
+			`select token_id
+					from users where username = $1;`,
+			[ids[i]]
+		)
+		if (newdata.rows.length !== 0) {
+			console.log(newdata.rows[0].token_id)
+			token_ids.push(newdata.rows[0].token_id)
+		}
+	}
+	return token_ids
+}
+
 router.post(
 	'/new',
 	asyncHandler(async (req, res, next) => {
@@ -88,6 +126,27 @@ router.post(
 				req.body.thought_on,
 			]
 		)
+		console.log('calling')
+
+		if (rows[0].mentions.length > 0) {
+			console.log('calling2')
+			console.log(rows[0].mentions)
+			if (rows[0].mentions.includes(req.body.username)) {
+				rows[0].mentions.splice(rows[0].mentions.indexOf(req.body.username), 1)
+			}
+
+			var tokenIds = await getToken(rows[0].mentions)
+			console.log(tokenIds)
+
+			if (tokenIds.length > 0) {
+				sendMultiNotification(
+					tokenIds,
+					'@' + req.body.username + ' mentioned you.',
+					req.body.body,
+					''
+				)
+			}
+		}
 		if (req.body.isReply) {
 			await pool.query(
 				`insert into replies (review_id,reply_id) values ($1,$2) ;`,
@@ -158,6 +217,23 @@ router.put(
 			id,
 			username,
 		])
+		const { rows } = await pool.query(
+			`select token_id,
+			(select display_name from users where username=$2) as display_name,
+			(select creator_username from reviews where id=$1) as name
+			from users where username = (select creator_username from reviews where id=$1);`,
+			[id, username]
+		)
+		if (username !== rows[0].name) {
+			console.log('calling')
+			sendNotification(
+				rows[0].token_id,
+				'@' + username,
+				rows[0].display_name + ' liked your thought.',
+				''
+			)
+		}
+
 		res.status(200).json({ success: true })
 	})
 )

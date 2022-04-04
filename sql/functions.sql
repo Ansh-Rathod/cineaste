@@ -161,44 +161,29 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION add_mention_notification()
   RETURNS trigger AS $$
     DECLARE 
-      owner_username text;
-      reactor_username text;
-      reactor_reply_id uuid;
-      reactor_reply_body text;
+    rector_body text;
+    reactor_username text;
+    rector_reply_id uuid;
     BEGIN
        
        
        IF TG_OP = 'INSERT' THEN
-          owner_username := NEW.user_id;
-          reactor_reply_id  := NEW.review_id;
-          EXECUTE 'select creator_username,body from reviews where id=$1;'
-          USING reactor_reply_id
-          INTO reactor_username,reactor_reply_body;
-
-          IF (owner_username != reactor_username) THEN 
+          reactor_username := NEW.creator_username;
+          reactor_reply_id  := NEW.id;
+          rector_body  := NEW.body;
+          FOR tag IN ARRAY NEW.mentions LOOP
+  
+          IF (tag != reactor_username) THEN 
               EXECUTE 'insert into notifications(
                 owner_username,
                 reactor_username,
                 rector_reply_id,
                 rector_body,
                 message_type) values ($1,$2,$3,$4,''MENTION'');' 
-              USING owner_username,reactor_username,reactor_reply_id,reactor_reply_body;
+              USING tag,reactor_username,reactor_reply_id,rector_body;
           END IF;
-       END IF;
+          END LOOP;
 
-       IF TG_OP = 'DELETE' THEN
-       
-          owner_username := OLD.user_id;
-          reactor_reply_id  := OLD.review_id;
-          EXECUTE 'select creator_username,body from reviews where id=$1;'
-          USING reactor_reply_id
-          INTO reactor_username,reactor_reply_body;
-
-          EXECUTE 'delete from notifications 
-          where owner_username = $1 and reactor_username = $2 
-          and rector_reply_id = $3
-          and message_type = ''MENTION'';'
-          USING owner_username,reactor_username,reactor_reply_id;
        END IF;
 
     RETURN NEW;

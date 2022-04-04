@@ -28,3 +28,9 @@ CREATE TRIGGER update_follower_following
 CREATE TRIGGER update_user_followers
   AFTER INSERT OR UPDATE OR DELETE ON followers
   FOR EACH ROW EXECUTE PROCEDURE counter_cache('users', 'followers', 'user_id', 'username');
+
+
+CREATE TRIGGER add_mention_notifications
+AFTER INSERT ON followers
+FOR EACH ROW EXECUTE PROCEDURE add_mention_notification();
+
