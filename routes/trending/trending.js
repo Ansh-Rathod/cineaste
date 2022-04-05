@@ -150,7 +150,7 @@ router.get(
 			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}')) reported
 			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username 
-			where '${id}'= ANY(tags) 
+			where '${id}'= ANY(tags::citext[] ) 
                   order by created_at desc offset $1 limit 20;`,
 			[offset]
 		)
