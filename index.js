@@ -2,6 +2,7 @@
 // imports
 import dotenv from 'dotenv'
 import express from 'express'
+import path from 'path'
 import errorHandler from './middlewares/error-handler.js'
 import favoriteRoute from './routes/favorites/favorite.js'
 import genreRoute from './routes/genre/genre.js'
@@ -29,30 +30,24 @@ const PORT = process.env.PORT || 4444
 // set up express app to handle data parsing
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+app.use(express.static('public'))
 
 // initialize routes
 app.get('/', (req, res) => {
-	function padTo2Digits(num) {
-		return num.toString().padStart(2, '0')
+	res.sendFile(path.join(path.resolve(), 'views/index.html'))
+})
+app.use(function (req, res, next) {
+	res.status(404)
+	if (req.accepts('html')) {
+		res.sendFile(path.join(path.resolve(), 'views/404.html'))
+		return
 	}
 
-	function formatDate(date) {
-		return (
-			[
-				date.getFullYear(),
-				padTo2Digits(date.getMonth() + 1),
-				padTo2Digits(date.getDate()),
-			].join('-') +
-			' ' +
-			[
-				padTo2Digits(date.getHours()),
-				padTo2Digits(date.getMinutes()),
-				padTo2Digits(date.getSeconds()),
-			].join(':')
-		)
+	if (req.accepts('json')) {
+		res.json({ error: 'Not found' })
+		return
 	}
-	const now = new Date('2022-04-03 11:03:56.535205+05:30')
-	res.json(formatDate(now))
+	res.type('txt').send('Not found')
 })
 
 app.use('/api/v1/user', userRoute)
