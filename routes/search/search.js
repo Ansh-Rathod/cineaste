@@ -33,7 +33,7 @@ router.get(
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
 			     ) as isReviewd
-			from movies where lower(title) like '${query}%' order by popularity desc offset $1 limit 20;`,
+			from movies where lower(title) like '%${query}%' order by popularity desc offset $1 limit 20;`,
 			[offset]
 		)
 		res.status(200).send({ success: true, results: rows })
@@ -52,7 +52,7 @@ router.get(
 				where reviews.creator_username='${username}'
 		    and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
 			     ) as isReviewd
-			from tvshows where lower(title) like '${query}%' order by popularity desc offset $1 limit 20;`,
+			from tvshows where lower(title) like '%${query}%' order by popularity desc offset $1 limit 20;`,
 			[offset]
 		)
 		res.status(200).send({ success: true, results: rows })
