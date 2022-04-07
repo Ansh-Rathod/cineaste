@@ -7,7 +7,7 @@ router.get(
 	'/movie/:id',
 	asyncHandler(async (req, res, next) => {
 		const { id } = req.params
-		await pool.query(
+		const { rows } = await pool.query(
 			`select title,poster,overview from movies where id=$1;`,
 
 			[id]
