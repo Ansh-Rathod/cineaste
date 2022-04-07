@@ -87,6 +87,26 @@ router.get(
 	})
 )
 
+function buildImages(imgs) {
+	const { backdrops, logos, posters } = imgs
+	let allimgs = []
+
+	const backdrops_imgs = backdrops.map((img) => {
+		return {
+			file_path: img.file_path,
+		}
+	})
+	const poster_imgs = posters.map((img) => {
+		return { file_path: img.file_path }
+	})
+	const logo_imgs = logos.map((img) => {
+		return { file_path: img.file_path }
+	})
+	allimgs = allimgs.concat(backdrops_imgs, poster_imgs, logo_imgs)
+
+	return allimgs
+}
+
 router.get(
 	'/:id',
 	asyncHandler(async (req, res, next) => {
@@ -228,25 +248,6 @@ router.get(
 	})
 )
 
-function buildImages(imgs) {
-	const { backdrops, logos, posters } = imgs
-	let allimgs = []
-
-	const backdrops_imgs = backdrops.map((img) => {
-		return {
-			file_path: img.file_path,
-		}
-	})
-	const poster_imgs = poster.map((img) => {
-		return { file_path: img.file_path }
-	})
-	const logo_imgs = logos.map((img) => {
-		return { file_path: img.file_path }
-	})
-	allimgs = allimgs.concat(backdrops_imgs, poster_imgs, logo_imgs)
-
-	return allimgs
-}
 router.get(
 	'/by/language',
 	asyncHandler(async (req, res, next) => {
