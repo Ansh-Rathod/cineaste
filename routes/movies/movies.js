@@ -118,7 +118,7 @@ router.get(
 						'movie/' +
 						req.params.id +
 						api_key +
-						'&append_to_response=videos,similar,credits'
+						'&append_to_response=videos,similar,credits,images'
 				)
 				.then(async (data) => {
 					await pool.query(
@@ -142,10 +142,12 @@ router.get(
 						videos,
 						genres,
 						production_countries,
-						spoken_languages,week_num
+						spoken_languages,
+						week_num,
+						images
 						)
 						values
-						($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) returning *,
+						($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$14) returning *,
 						(exists  (select 1 from favorites
 							where favorites.username='${username}'
 					    and favorites.media_id = movie_info.id and favorites.media_type='movie')
@@ -209,6 +211,7 @@ router.get(
 							{ results: data.data.production_countries },
 							{ results: data.data.spoken_languages },
 							week,
+							{ results: buildImages(data.data.images) },
 						]
 					)
 					res.status(200).json({ success: true, results: rows })
@@ -225,6 +228,25 @@ router.get(
 	})
 )
 
+function buildImages(imgs) {
+	const { backdrops, logos, posters } = imgs
+	let allimgs = []
+
+	const backdrops_imgs = backdrops.map((img) => {
+		return {
+			file_path: img.file_path,
+		}
+	})
+	const poster_imgs = poster.map((img) => {
+		return { file_path: img.file_path }
+	})
+	const logo_imgs = logos.map((img) => {
+		return { file_path: img.file_path }
+	})
+	allimgs = allimgs.concat(backdrops_imgs, poster_imgs, logo_imgs)
+
+	return allimgs
+}
 router.get(
 	'/by/language',
 	asyncHandler(async (req, res, next) => {

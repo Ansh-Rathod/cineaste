@@ -26,6 +26,7 @@ create table movie_info(
   tagline text,
   vote_average float4 NOT NULL,
   similar_movies jsonb,
+  images jsonb,
   movie_cast jsonb,
   crew jsonb,
   videos jsonb,
