@@ -8,7 +8,22 @@ router.get(
 	asyncHandler(async (req, res, next) => {
 		const { id } = req.params
 		const { rows } = await pool.query(
-			`select title,poster,overview from movies where id=$1;`,
+			`select title,poster,overview,id from movies where id=$1;`,
+
+			[id]
+		)
+		res.status(200).send({
+			success: true,
+			results: rows,
+		})
+	})
+)
+router.get(
+	'/tv/:id',
+	asyncHandler(async (req, res, next) => {
+		const { id } = req.params
+		const { rows } = await pool.query(
+			`select title,poster,overview,id from tvshows where id=$1;`,
 
 			[id]
 		)
