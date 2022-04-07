@@ -102,7 +102,7 @@ function buildImages(imgs) {
 	const logo_imgs = logos.map((img) => {
 		return { file_path: img.file_path }
 	})
-	allimgs = allimgs.concat(backdrops_imgs, poster_imgs, logo_imgs)
+	allimgs = allimgs.concat(poster_imgs, backdrops_imgs, logo_imgs)
 
 	return allimgs
 }
