@@ -167,7 +167,7 @@ router.get(
 						images
 						)
 						values
-						($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$14) returning *,
+						($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19) returning *,
 						(exists  (select 1 from favorites
 							where favorites.username='${username}'
 					    and favorites.media_id = movie_info.id and favorites.media_type='movie')
