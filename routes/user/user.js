@@ -204,20 +204,20 @@ router.post(
 	})
 )
 
-router.put('/update/token_id/:id',(req, res, next) => {
-
-
-	const {  id } = req.params
-	const {  username } = req.query
-	await pool.query(
-		`update users set
+router.put(
+	'/update/token_id/:id',
+	asyncHandler(async (req, res, next) => {
+		const { id } = req.params
+		const { username } = req.query
+		await pool.query(
+			`update users set
 		token_id=$1
 		where id=$2;`,
-		[id, username]
-	)
+			[id, username]
+		)
 
-	res.status(200).json({ success: true })
-
-})
+		res.status(200).json({ success: true })
+	})
+)
 
 export default router
