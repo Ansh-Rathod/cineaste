@@ -227,7 +227,7 @@ router.put(
 			`update users set
 		token_id=$1
 		where id=$2;`,
-			[id, username]
+			['null', username]
 		)
 
 		res.status(200).json({ success: true })
