@@ -110,7 +110,9 @@ async function getToken(ids) {
 		}
 	}
 	console.log('before splice', token_ids)
-	token_ids.splice(token_ids.indexOf('null'), 1)
+	if (token_ids.includes('null')) {
+		token_ids.splice(token_ids.indexOf('null'), 1)
+	}
 	return token_ids
 }
 
