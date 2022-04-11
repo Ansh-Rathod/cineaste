@@ -109,6 +109,7 @@ async function getToken(ids) {
 			token_ids.push(newdata.rows[0].token_id)
 		}
 	}
+	token_ids.splice(token_ids.indexOf('null'), 1)
 	return token_ids
 }
 
@@ -159,12 +160,14 @@ router.post(
 					from users where username =$1`,
 					[req.body.repling_to[0], req.body.username]
 				)
-				sendNotification(
-					data.rows[0].token_id,
-					'@' + req.body.username + ' replied to you.',
-					req.body.body,
-					data.rows[0].avatar_url
-				)
+				if (data.rows[0].token_id != 'null') {
+					sendNotification(
+						data.rows[0].token_id,
+						'@' + req.body.username + ' replied to you.',
+						req.body.body,
+						data.rows[0].avatar_url
+					)
+				}
 			}
 		}
 		res.status(201).json({ success: true, results: rows[0] })
@@ -226,12 +229,14 @@ router.put(
 		)
 		if (username !== rows[0].name) {
 			console.log('calling')
-			sendNotification(
-				rows[0].token_id,
-				'@' + username,
-				rows[0].display_name + ' liked your thought.',
-				''
-			)
+			if (rows[0].token_id != 'null') {
+				sendNotification(
+					rows[0].token_id,
+					'@' + username,
+					rows[0].display_name + ' liked your thought.',
+					''
+				)
+			}
 		}
 
 		res.status(200).json({ success: true })

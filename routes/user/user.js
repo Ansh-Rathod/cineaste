@@ -116,12 +116,14 @@ router.post(
 			from users where username=$1`,
 			[user_id, follower_id]
 		)
-		sendNotification(
-			data.rows[0].token_id,
-			'@' + follower_id,
-			`${data.rows[0].name} started following you`,
-			data.rows[0].avatar_url
-		)
+		if (token_id !== 'null') {
+			sendNotification(
+				data.rows[0].token_id,
+				'@' + follower_id,
+				`${data.rows[0].name} started following you`,
+				data.rows[0].avatar_url
+			)
+		}
 		res.status(200).json({ success: true, results: rows[0] })
 	})
 )
