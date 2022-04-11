@@ -112,9 +112,9 @@ router.post(
 
 		const data = await pool.query(
 			`select token_id,
-			(select display_name from users where lower(username)=$2) as name,
-			(select avatar_url from users where lower(username)=$2) as avatar_url
-			from users where lower(username)=$1`,
+			(select display_name from users where username=$2) as name,
+			(select avatar_url from users where username=$2) as avatar_url
+			from users where username=$1`,
 			[user_id, follower_id]
 		)
 		if (data.rows[0].token_id !== 'null') {
