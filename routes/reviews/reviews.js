@@ -109,6 +109,7 @@ async function getToken(ids) {
 			token_ids.push(newdata.rows[0].token_id)
 		}
 	}
+	console.log('before splice', token_ids)
 	token_ids.splice(token_ids.indexOf('null'), 1)
 	return token_ids
 }
@@ -196,7 +197,7 @@ router.get(
 			`,
 			[offset]
 		)
-		console.log()
+
 		res.status(200).json({
 			success: true,
 			results: formatResult(rows),
