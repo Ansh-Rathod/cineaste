@@ -101,7 +101,7 @@ async function getToken(ids) {
 	for (let i = 0; i < ids.length; i++) {
 		const newdata = await pool.query(
 			`select token_id
-					from users where username = $1;`,
+					from users where lower(username) = $1;`,
 			[ids[i]]
 		)
 		if (newdata.rows.length !== 0) {
