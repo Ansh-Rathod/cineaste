@@ -16,7 +16,7 @@ function createNewUser(data) {
 		`insert into users (id, username, display_name, email, avatar_url, backdrop_url, bio,token_id,device_id) values ($1, $2, $3, $4, $5, $6, $7,$8,$9)`,
 		[
 			id,
-			username,
+			username.toLowerCase(),
 			display_name,
 			email,
 			avatar_url,
