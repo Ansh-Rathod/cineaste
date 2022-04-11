@@ -105,7 +105,7 @@ async function getToken(ids) {
 			[ids[i]]
 		)
 		if (newdata.rows.length !== 0) {
-			console.log(newdata.rows[0].token_id)
+			console.log(i, newdata.rows[0].token_id)
 			token_ids.push(newdata.rows[0].token_id)
 		}
 	}
