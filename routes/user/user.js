@@ -117,6 +117,8 @@ router.post(
 			[user_id, follower_id]
 		)
 		if (token_id !== 'null') {
+			console.log(data.rows[0].token_id)
+
 			sendNotification(
 				data.rows[0].token_id,
 				'@' + follower_id,

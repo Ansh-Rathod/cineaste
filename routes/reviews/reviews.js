@@ -161,6 +161,7 @@ router.post(
 					[req.body.repling_to[0], req.body.username]
 				)
 				if (data.rows[0].token_id != 'null') {
+					console.log(data.rows[0].token_id)
 					sendNotification(
 						data.rows[0].token_id,
 						'@' + req.body.username + ' replied to you.',
