@@ -10,6 +10,11 @@ router.post(
 	asyncHandler(async (req, res, next) => {
 		const { rows } = await getUser(req.body.id, false)
 		if (rows.length == 0) {
+			await pool.query(
+				`update users set token_id = 'null' where device_id = $1`,
+				[req.body.device_id]
+			)
+
 			await createNewUser(req.body)
 
 			res.status(201).json({
@@ -19,10 +24,15 @@ router.post(
 				results: await (await getUser(req.body.id, false)).rows[0],
 			})
 		} else {
+			await pool.query(
+				`update users set token_id = 'null' where device_id = $1`,
+				[req.body.device_id]
+			)
 			await pool.query(`update users set token_id = $1 where id = $2;`, [
 				req.body.token_id,
 				req.body.id,
 			])
+
 			res.status(200).json({
 				success: true,
 				status: 200,
