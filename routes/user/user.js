@@ -28,10 +28,10 @@ router.post(
 				`update users set token_id = 'null' where device_id = $1`,
 				[req.body.device_id]
 			)
-			await pool.query(`update users set token_id = $1 where id = $2;`, [
-				req.body.token_id,
-				req.body.id,
-			])
+			await pool.query(
+				`update users set token_id = $1, device_id= $3 where id = $2;`,
+				[req.body.token_id, req.body.id, req.body.device_id]
+			)
 
 			res.status(200).json({
 				success: true,
