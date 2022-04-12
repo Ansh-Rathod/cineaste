@@ -51,8 +51,8 @@ function formatResult(rows) {
 		}
 	})
 }
-function sendNotification(id, heading, body, icon) {
-	axios({
+async function sendNotification(id, heading, body, icon) {
+	await axios({
 		method: 'POST',
 		url: `https://onesignal.com/api/v1/notifications`,
 		headers: {
@@ -74,8 +74,8 @@ function sendNotification(id, heading, body, icon) {
 	})
 }
 
-function sendMultiNotification(id, heading, body, icon) {
-	axios({
+async function sendMultiNotification(id, heading, body, icon) {
+	await axios({
 		method: 'POST',
 		url: `https://onesignal.com/api/v1/notifications`,
 		headers: {
@@ -144,7 +144,7 @@ router.post(
 			console.log(tokenIds)
 
 			if (tokenIds.length > 0) {
-				sendMultiNotification(
+				await sendMultiNotification(
 					tokenIds,
 					'@' + req.body.username + ' mentioned you.',
 					req.body.body,
@@ -164,9 +164,9 @@ router.post(
 					from users where username =$1`,
 					[req.body.repling_to[0], req.body.username]
 				)
-				if (data.rows[0].token_id != 'null') {
+				if (data.rows[0].token_id !== 'null') {
 					console.log(data.rows[0].token_id)
-					sendNotification(
+					await sendNotification(
 						data.rows[0].token_id,
 						'@' + req.body.username + ' replied to you.',
 						req.body.body,
@@ -234,8 +234,8 @@ router.put(
 		)
 		if (username !== rows[0].name) {
 			console.log('calling')
-			if (rows[0].token_id != 'null') {
-				sendNotification(
+			if (rows[0].token_id !== 'null') {
+				await sendNotification(
 					rows[0].token_id,
 					'@' + username,
 					rows[0].display_name + ' liked your thought.',

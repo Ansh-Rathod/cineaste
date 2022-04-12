@@ -43,8 +43,8 @@ router.post(
 	})
 )
 
-function sendNotification(id, heading, body, icon) {
-	axios({
+async function sendNotification(id, heading, body, icon) {
+	await axios({
 		method: 'POST',
 		url: `https://onesignal.com/api/v1/notifications`,
 		headers: {
@@ -120,7 +120,7 @@ router.post(
 		if (data.rows[0].token_id !== 'null') {
 			console.log(data.rows[0].token_id)
 
-			sendNotification(
+			await sendNotification(
 				data.rows[0].token_id,
 				'@' + follower_id,
 				`${data.rows[0].name} started following you`,
