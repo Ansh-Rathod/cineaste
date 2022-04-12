@@ -160,9 +160,9 @@ router.post(
 			if (req.body.repling_to[0] !== req.body.username) {
 				const data = await pool.query(
 					`select token_id,
-					(select avatar_url from users where lower(users.username) = $2) as avatar_url
+					(select avatar_url from users where users.username = $2) as avatar_url
 					from users where username =$1`,
-					[req.body.repling_to[0].toLowerCase(), req.body.username]
+					[req.body.repling_to[0], req.body.username]
 				)
 				if (data.rows[0].token_id != 'null') {
 					console.log(data.rows[0].token_id)
