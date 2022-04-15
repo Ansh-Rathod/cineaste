@@ -51,7 +51,7 @@ async function sendNotification(id, heading, body, icon) {
 			'Content-Type': 'application/json; charset=UTF-8',
 		},
 		data: {
-			app_id: 'c12795f1-c371-4774-a450-2ddcd054cf2f',
+			app_id: '52598804-8cac-4a63-a7f4-c9d642679986',
 			include_player_ids: [id],
 			android_accent_color: 'FFB319',
 			small_icon: 'ic_stat_onesignal_default',
