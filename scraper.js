@@ -274,7 +274,23 @@ const endpoints = [
 	// },
 	{
 		year: '2022',
-		page: 466,
+		page: 500,
+	},
+	{
+		year: '1990',
+		page: 293,
+	},
+	{
+		year: '1989',
+		page: 287,
+	},
+	{
+		year: '1988',
+		page: 278,
+	},
+	{
+		year: '1987',
+		page: 273,
 	},
 ]
 // `https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
@@ -477,7 +493,91 @@ const tvEndpoint = [
 	// },
 	{
 		year: '2022',
-		page: 125,
+		page: 146,
+	},
+	{
+		year: '1990',
+		page: 31,
+	},
+	{
+		year: '1989',
+		page: 30,
+	},
+	{
+		year: '1988',
+		page: 27,
+	},
+	{
+		year: '1987',
+		page: 27,
+	},
+	{
+		year: '1986',
+		page: 24,
+	},
+	{
+		year: '1985',
+		page: 26,
+	},
+	{
+		year: '1984',
+		page: 23,
+	},
+	{
+		year: '1983',
+		page: 22,
+	},
+	{
+		year: '1982',
+		page: 20,
+	},
+	{
+		year: '1981',
+		page: 21,
+	},
+	{
+		year: '1980',
+		page: 19,
+	},
+	{
+		year: '1979',
+		page: 19,
+	},
+	{
+		year: '1978',
+		page: 19,
+	},
+	{
+		year: '1977',
+		page: 19,
+	},
+	{
+		year: '1976',
+		page: 19,
+	},
+	{
+		year: '1975',
+		page: 19,
+	},
+	{
+		year: '1974',
+		page: 19,
+	},
+	{
+		year: '1973',
+		page: 19,
+	},
+	{
+		year: '1972',
+		page: 19,
+	},
+	{
+		year: '1971',
+		page: 19,
+	},
+	{
+		year: '1970',
+		page: 19,
 	},
 ]
 app.get(
