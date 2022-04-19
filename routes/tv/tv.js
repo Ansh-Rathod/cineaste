@@ -99,7 +99,7 @@ router.get(
 			release,
 			poster,
 			rating from tvshows
-			where language =$1 and poster is not null and rating > 1 and release like '2022-03%' order by popularity desc limit 20;`,
+			where language =$1 and poster is not null and rating > 1 and release like '2022-04%' order by popularity desc limit 20;`,
 			[language]
 		)
 

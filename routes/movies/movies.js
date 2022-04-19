@@ -258,7 +258,7 @@ router.get(
 			release,
 			poster,
 			rating from movies
-			where language = $1 and adult = false and poster is not null and release like '2022-03%' order by popularity desc limit 20;`,
+			where language = $1 and adult = false and poster is not null and release like '2022-04%' order by popularity desc limit 20;`,
 			[language]
 		)
 
