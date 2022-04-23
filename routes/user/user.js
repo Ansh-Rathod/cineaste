@@ -195,7 +195,7 @@ router.get(
 			`select username,display_name,avatar_url, (exists  (select 1 from followers
 			where followers.user_id=users.username
 			and followers.follower_id = '${username}')) as isfollow
-			from users limit 20;`
+			from users order by username limit 20;`
 		)
 		res.status(200).json({ success: true, results: rows })
 	})

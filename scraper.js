@@ -276,22 +276,22 @@ const endpoints = [
 		year: '2022',
 		page: 500,
 	},
-	{
-		year: '1990',
-		page: 293,
-	},
-	{
-		year: '1989',
-		page: 287,
-	},
-	{
-		year: '1988',
-		page: 278,
-	},
-	{
-		year: '1987',
-		page: 273,
-	},
+	// {
+	// 	year: '1990',
+	// 	page: 293,
+	// },
+	// {
+	// 	year: '1989',
+	// 	page: 287,
+	// },
+	// {
+	// 	year: '1988',
+	// 	page: 278,
+	// },
+	// {
+	// 	year: '1987',
+	// 	page: 273,
+	// },
 ]
 // `https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
 
