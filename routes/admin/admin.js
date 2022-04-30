@@ -67,7 +67,7 @@ router.get(
 		const { query } = req.query
 
 		const { rows } = await pool.query(
-			`select * from users where LOWER(username) like '%${query}%' limit 20;`
+			`select * from users where LOWER(username) like '%${query}%' or lower(display_name) like '%${query}%' limit 20;`
 		)
 
 		res.send({ rows: formatResult(rows) })
