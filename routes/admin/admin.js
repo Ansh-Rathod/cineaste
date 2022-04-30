@@ -53,11 +53,11 @@ router.get(
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`select * from users order by created desc offset $1 limit 20;`,
+			`select *,count(*) from users order by created desc offset $1 limit 20;`,
 			[offset]
 		)
 
-		res.send({ rows: formatResult(rows) })
+		res.send({ count: rows[0].count, rows: formatResult(rows) })
 	})
 )
 
