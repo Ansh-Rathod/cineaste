@@ -61,4 +61,17 @@ router.get(
 	})
 )
 
+router.get(
+	'/users/search',
+	asyncHandler(async (req, res, next) => {
+		const { query } = req.query
+
+		const { rows } = await pool.query(
+			`select * from users where username like '%${query}%' limit 20;`
+		)
+
+		res.send({ rows: formatResult(rows) })
+	})
+)
+
 export default router
