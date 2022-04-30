@@ -4,6 +4,49 @@ import asyncHandler from '../../methods/async-function.js'
 
 const router = express.Router()
 
+function formateTime(time) {
+	function padTo2Digits(num) {
+		return num.toString().padStart(2, '0')
+	}
+
+	function formatDate(date) {
+		return (
+			[
+				date.getFullYear(),
+				padTo2Digits(date.getMonth() + 1),
+				padTo2Digits(date.getDate()),
+			].join('-') +
+			' ' +
+			[
+				padTo2Digits(date.getHours()),
+				padTo2Digits(date.getMinutes()),
+				padTo2Digits(date.getSeconds()),
+			].join(':')
+		)
+	}
+	const now = new Date(time)
+	const date = formatDate(now)
+	return date
+}
+function formatResult(rows) {
+	return rows.map((row) => {
+		return {
+			id: row.id,
+			username: row.username,
+			display_name: row.display_name,
+			avatar_url: row.avatar_url,
+			backdrop_url: row.backdrop_url,
+			email: row.email,
+			bio: row.bio,
+			followers: row.followers,
+			following: row.following,
+			token_id: row.token_id,
+			device_id: row.device_id,
+			created_at: formateTime(row.created),
+		}
+	})
+}
+
 router.get(
 	'/users',
 	asyncHandler(async (req, res, next) => {
@@ -14,7 +57,7 @@ router.get(
 			[offset]
 		)
 
-		res.send(rows)
+		res.send({ rows: formatResult(rows) })
 	})
 )
 
