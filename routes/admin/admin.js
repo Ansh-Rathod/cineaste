@@ -10,7 +10,7 @@ router.get(
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`select * from users order by desc offset $1 limit 20;`,
+			`select * from users order by created desc offset $1 limit 20;`,
 			[offset]
 		)
 
