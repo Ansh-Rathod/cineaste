@@ -3,6 +3,7 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import errorHandler from './middlewares/error-handler.js'
+import adminRoute from './routes/admin/admin.js'
 import favoriteRoute from './routes/favorites/favorite.js'
 import genreRoute from './routes/genre/genre.js'
 import mediaRoute from './routes/media/upload-media.js'
@@ -50,6 +51,8 @@ app.use('/api/v1/web', webRoute)
 app.use('/api/v1/genres', genreRoute)
 app.use('/api/v1/notifications', notificationRoute)
 app.use('/scraper', scaper)
+
+app.use('/api/admin', adminRoute)
 
 //
 app.use(errorHandler)
