@@ -57,7 +57,9 @@ router.get(
 			[offset]
 		)
 
-		res.send({ count: rows[0].count, rows: formatResult(rows) })
+		const count = await pool.query(`select count(*) from users;`)
+
+		res.send({ count: count, rows: formatResult(rows) })
 	})
 )
 
