@@ -57,4 +57,38 @@ router.get(
 	})
 )
 
+router.get(
+	'/search/:query',
+	asyncHandler(async (req, res, next) => {
+		const { pos } = req.query
+		axios
+			.get(
+				`https://g.tenor.com/v1/search?q=${req.params.query}?key=LIVDSRZULELA&limit=50`
+			)
+
+			.then(async (data) => {
+				res.status(200).json({
+					success: true,
+					next: data.data.next,
+					results: data.data.results.map((result) => formatResult(result)),
+				})
+			})
+			.catch((err) => {
+				console.log(err)
+				return res
+					.status(500)
+					.json({ success: false, message: 'Trending not fetched' })
+			})
+	})
+)
+
+function formatResult(result) {
+	return {
+		url: result.media[0].gif.url,
+		tenor_id: result.tenor_id,
+		content_description: result.content_description,
+		preview_url: result.media[0].gif.preview_url,
+		dims: result.media[0].gif.dims,
+	}
+}
 export default router
