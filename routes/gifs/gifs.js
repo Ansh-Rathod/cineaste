@@ -85,9 +85,9 @@ router.get(
 function formatResult(result) {
 	return {
 		url: result.media[0].gif.url,
-		tenor_id: result.tenor_id,
+		tenor_id: result.id,
 		content_description: result.content_description,
-		preview_url: result.media[0].gif.preview_url,
+		preview_url: result.media[0].gif.preview,
 		dims: result.media[0].gif.dims,
 	}
 }
