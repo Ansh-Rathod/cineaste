@@ -88,7 +88,7 @@ function formatResult(result) {
 		tenor_id: result.id,
 		content_description: result.content_description,
 		preview_url: result.media[0].gif.preview,
-		dims: result.media[0].gif.dims,
+		dims: { data: result.media[0].gif.dims },
 	}
 }
 export default router
