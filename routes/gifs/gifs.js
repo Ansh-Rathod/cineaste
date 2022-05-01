@@ -63,7 +63,7 @@ router.get(
 		const { pos } = req.query
 		axios
 			.get(
-				`https://g.tenor.com/v1/search?q=${req.params.query}?key=LIVDSRZULELA&limit=50`
+				`https://g.tenor.com/v1/search?q=${req.params.query}&key=LIVDSRZULELA&limit=50`
 			)
 
 			.then(async (data) => {
