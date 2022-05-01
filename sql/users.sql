@@ -120,3 +120,14 @@ MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 
+CREATE TABLE gifs(
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  url text NOT NULL,
+  content_description    text,
+  preview_url text,
+  tenor_id text,
+  dims jsonb,
+  week text,
+  created_at timestamptz NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY(id)
+);

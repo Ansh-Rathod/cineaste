@@ -6,6 +6,7 @@ import errorHandler from './middlewares/error-handler.js'
 import adminRoute from './routes/admin/admin.js'
 import favoriteRoute from './routes/favorites/favorite.js'
 import genreRoute from './routes/genre/genre.js'
+import gifRoute from './routes/gifs/gifs.js'
 import mediaRoute from './routes/media/upload-media.js'
 import moviesRoute from './routes/movies/movies.js'
 import notificationRoute from './routes/notifications/notifications.js'
@@ -50,6 +51,7 @@ app.use('/api/v1/favorite', favoriteRoute)
 app.use('/api/v1/web', webRoute)
 app.use('/api/v1/genres', genreRoute)
 app.use('/api/v1/notifications', notificationRoute)
+app.use('/api/v1/gifs', gifRoute)
 app.use('/scraper', scaper)
 
 app.use('/api/admin', adminRoute)
