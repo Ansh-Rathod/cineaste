@@ -33,7 +33,7 @@ router.get(
 								gif.media[0].gif.url,
 								gif.id,
 								gif.content_description,
-								gif.media[0].gif.preview,
+								gif.media[0].tinygif.url,
 								{ data: gif.media[0].gif.dims },
 								a,
 							]
@@ -87,8 +87,10 @@ function formatResult(result) {
 		url: result.media[0].gif.url,
 		tenor_id: result.id,
 		content_description: result.content_description,
-		preview_url: result.media[0].gif.preview,
+		preview_url: result.media[0].tinygif.url,
 		dims: { data: result.media[0].gif.dims },
 	}
 }
 export default router
+// e2a3363f-221e-4c76-9c57-ffdbace19b65
+// 4179cd89-f45f-4eef-86bd-2ee3ed8ac755
