@@ -192,10 +192,13 @@ router.get(
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`select username,display_name,avatar_url, (exists  (select 1 from followers
+			`select username,display_name,avatar_url,
+			(exists  (select 1 from followers
 			where followers.user_id=users.username
 			and followers.follower_id = '${username}')) as isfollow
-			from users order by username limit 20;`
+			from users 
+			where username not in (select follower_id from followers where follower_id = '${username}')		
+			order by username limit 20;`
 		)
 		res.status(200).json({ success: true, results: rows })
 	})
