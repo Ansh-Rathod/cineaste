@@ -199,7 +199,7 @@ router.get(
 			from users 
                   where username not in
                   (select user_id from followers where follower_id = '${username}')		
-			order by username limit 20;`
+			order by random() limit 20;`
 		)
 		res.status(200).json({ success: true, results: rows })
 	})
