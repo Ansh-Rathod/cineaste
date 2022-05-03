@@ -123,7 +123,7 @@ router.get(
 			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
 
-			where created_at > current_date - interval '2 days' and repling_to='{}'
+			where created_at > current_date - interval '2 days' and repling_to='{}' and movie is null
 			order by likes desc offset $1 limit 20;
 			`,
 			[offset]
