@@ -197,7 +197,7 @@ router.get(
 			where followers.user_id=users.username
 			and followers.follower_id = '${username}')) as isfollow
 			from users 
-			where username not in (select follower_id from followers where user_id = '${username}')		
+			where username not in (select follower_id from followers where follower_id = '${username}')		
 			order by username limit 20;`
 		)
 		res.status(200).json({ success: true, results: rows })
