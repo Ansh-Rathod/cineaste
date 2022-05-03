@@ -53,7 +53,7 @@ router.get(
 	'/hashtags',
 	asyncHandler(async (req, res, next) => {
 		const { rows } = await pool.query(
-			`select tags from reviews where created_at > current_date - interval '1 days';`
+			`select tags from reviews where created_at > current_date - interval '3 days';`
 		)
 		let allHashtags = []
 		rows.forEach((row) => {
