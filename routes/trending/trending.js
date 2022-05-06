@@ -96,7 +96,9 @@ router.get(
 			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}')) reported
 			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
-			where created_at > current_date - interval '2 days' and movie is not null 
+			WHERE creator_username not in 
+			(SELECT user_id FROM followers WHERE follower_id='${username}')
+			and created_at > current_date - interval '2 days' and movie is not null 
                   order by likes desc offset $1 limit 20;
 			`,
 			[offset]
@@ -122,8 +124,9 @@ router.get(
 			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}')) reported
 			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
-
-			where created_at > current_date - interval '2 days' and repling_to='{}' and movie is null
+			WHERE creator_username not in 
+			(SELECT user_id FROM followers WHERE follower_id='${username}')
+			and created_at > current_date - interval '2 days' and repling_to='{}' and movie is null
 			order by likes desc offset $1 limit 20;
 			`,
 			[offset]

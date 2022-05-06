@@ -196,8 +196,7 @@ router.get(
 			LEFT JOIN users on reviews.creator_username=users.username  
 			 WHERE creator_username IN 
 			(SELECT user_id FROM followers WHERE follower_id='${username}')
-			
-			and repling_to='{}'
+			and created_at > current_date - interval '2 days'
 			order by reviews.created_at desc offset $1 limit 20;`,
 			[offset]
 		)

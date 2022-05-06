@@ -13,7 +13,8 @@ CREATE TABLE reviews(
   created_at    timestamptz NOT NULL DEFAULT current_timestamp
 );
 
-
+ALTER TABLE users   
+ADD COLUMN text[] languages NOT NULL DEFAULT '{}';  
 
 ALTER TABLE reviews
 ADD CONSTRAINT user_fk FOREIGN KEY (creator_username) REFERENCES users (username)
