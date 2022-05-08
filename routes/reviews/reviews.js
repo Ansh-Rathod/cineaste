@@ -197,7 +197,6 @@ router.get(
 			 WHERE creator_username IN 
 			(SELECT user_id FROM followers WHERE follower_id='${username}')
 			and reviews.created_at > current_date - interval '2 days'
-			and repling_to='{}'
 			order by reviews.created_at desc offset $1 limit 20;`,
 			[offset]
 		)
