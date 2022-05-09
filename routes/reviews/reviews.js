@@ -336,6 +336,31 @@ router.get(
 )
 
 router.get(
+	'/replies/3',
+	asyncHandler(async (req, res, next) => {
+		const { id, username } = req.query
+		const { rows } = await pool.query(
+			`
+			select reviews.id,creator_username,display_name,avatar_url,media,
+			thought_on,likes,replies,body,reviews.created_at,repling_to,mentions,
+			(exists  (select 1 from liked
+				where liked.user_id='${username}' and liked.review_id =reviews.id)
+			     ) as liked,
+			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
+			reported
+			from replies left join reviews on replies.reply_id=reviews.id
+			left join users on reviews.creator_username =users.username
+			where review_id = '${id}'
+			order by created_at desc limit 3;`
+		)
+		res.status(200).json({
+			success: true,
+			results: formatResult(rows),
+		})
+	})
+)
+
+router.get(
 	'/movie/:id',
 	asyncHandler(async function (req, res, next) {
 		const { id } = req.params
