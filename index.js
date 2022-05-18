@@ -2,6 +2,7 @@
 // imports
 import dotenv from 'dotenv'
 import express from 'express'
+import data from './data.js'
 import errorHandler from './middlewares/error-handler.js'
 import adminRoute from './routes/admin/admin.js'
 import favoriteRoute from './routes/favorites/favorite.js'
@@ -19,7 +20,6 @@ import tvRoute from './routes/tv/tv.js'
 import userRoute from './routes/user/user.js'
 import webRoute from './routes/web/web.js'
 import scaper from './scraper.js'
-
 //
 // configure environment variables
 dotenv.config({ path: '.env' })
@@ -53,6 +53,7 @@ app.use('/api/v1/genres', genreRoute)
 app.use('/api/v1/notifications', notificationRoute)
 app.use('/api/v1/gifs', gifRoute)
 app.use('/scraper', scaper)
+app.use('/data', data)
 
 app.use('/api/admin', adminRoute)
 
