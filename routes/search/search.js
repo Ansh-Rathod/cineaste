@@ -64,7 +64,7 @@ router.get(
 		const { query, username } = req.query
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
-		const text = query.split(' ').join(' & ')
+		const text = query.split(' ').join(' <-> ')
 
 		const { rows } = await pool.query(
 			`select id,title,rating,poster,release,
@@ -84,7 +84,7 @@ router.get(
 		const { query, username } = req.query
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
-		const text = query.split(' ').join(' & ')
+		const text = query.split(' ').join(' <-> ')
 		const { rows } = await pool.query(
 			`select id,title,rating,poster,release
 			,    (exists  (select 1 from reviews
