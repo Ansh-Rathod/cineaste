@@ -64,6 +64,7 @@ router.get(
 		const { query, username } = req.query
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
+		const text = query.split(' ').join(' | ')
 
 		const { rows } = await pool.query(
 			`select id,title,rating,poster,release,
@@ -71,7 +72,7 @@ router.get(
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
 			     ) as isReviewd
-			from movies where to_tsvector(title) @@ to_tsquery('${query}') order by popularity desc offset $1 limit 20;`,
+			from movies where to_tsvector(title) @@ to_tsquery('${text}') order by popularity desc offset $1 limit 20;`,
 			[offset]
 		)
 		res.status(200).send({ success: true, results: rows })
@@ -83,14 +84,14 @@ router.get(
 		const { query, username } = req.query
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
-
+		const text = query.split(' ').join(' | ')
 		const { rows } = await pool.query(
 			`select id,title,rating,poster,release
 			,    (exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		    and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
 			     ) as isReviewd
-			from tvshows where to_tsvector(title) @@ to_tsquery('${query}') order by popularity desc offset $1 limit 20;`,
+			from tvshows where to_tsvector(title) @@ to_tsquery('${text}') order by popularity desc offset $1 limit 20;`,
 			[offset]
 		)
 		res.status(200).send({ success: true, results: rows })
