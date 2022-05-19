@@ -3,6 +3,7 @@ import express from 'express'
 import moment from 'moment-timezone'
 import pool from '../../db.js'
 import asyncHandler from '../../methods/async-function.js'
+
 const baseUrl = 'https://api.themoviedb.org/3/'
 const api_key = '?api_key=b6e66a75ceca7996c5772ddd0656dd1b'
 
@@ -47,33 +48,18 @@ router.get(
 	asyncHandler(async (req, res, next) => {
 		const { query, username } = req.query
 		const { page } = req.query
-		axios
-			.get(baseUrl + 'search/tv' + api_key + `&page=${page}&query=${query}`)
-			.then(async (data) => {
-				res.status(200).json({
-					success: true,
-					results: data.data.results.map((movie) => {
-						return {
-							id: movie.id,
-							title: movie.title,
-							release: movie.release_date,
-							rating: movie.vote_average,
-							poster: movie.poster_path,
-							language: movie.original_language,
-							backdrop: movie.backdrop_path,
-							overview: movie.overview,
-							genre: movie.genre_ids,
-							adult: false,
-						}
-					}),
-				})
-			})
-			.catch((err) => {
-				console.log(err)
-				return res
-					.status(500)
-					.json({ success: false, message: 'Trending not fetched' })
-			})
+		const offset = (page ?? 0) * 20
+
+		const { rows } = await pool.query(
+			`select id,title,rating,poster,release
+			,    (exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		    and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
+			     ) as isReviewd
+			from tvshows where lower(title) like '%${query}%' order by popularity desc offset $1 limit 20;`,
+			[offset]
+		)
+		res.status(200).send({ success: true, results: rows })
 	})
 )
 router.get(
@@ -115,18 +101,33 @@ router.get(
 	asyncHandler(async (req, res, next) => {
 		const { query, username } = req.query
 		const { page } = req.query
-		const offset = (page ?? 0) * 20
-		const text = query.replace(/  +/g, ' ').split(' ').join(' <-> ')
-		const { rows } = await pool.query(
-			`select id,title,rating,poster,release
-			,    (exists  (select 1 from reviews
-				where reviews.creator_username='${username}'
-		    and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
-			     ) as isReviewd
-			from tvshows where to_tsvector(title) @@ to_tsquery('${text}') order by popularity desc offset $1 limit 20;`,
-			[offset]
-		)
-		res.status(200).send({ success: true, results: rows })
+		axios
+			.get(baseUrl + 'search/tv' + api_key + `&page=${page}&query=${query}`)
+			.then(async (data) => {
+				res.status(200).json({
+					success: true,
+					results: data.data.results.map((movie) => {
+						return {
+							id: movie.id,
+							title: movie.name,
+							release: movie.release_date,
+							rating: movie.vote_average,
+							poster: movie.poster_path,
+							language: movie.original_language,
+							backdrop: movie.backdrop_path,
+							overview: movie.overview,
+							genre: movie.genre_ids,
+							adult: false,
+						}
+					}),
+				})
+			})
+			.catch((err) => {
+				console.log(err)
+				return res
+					.status(500)
+					.json({ success: false, message: 'Trending not fetched' })
+			})
 	})
 )
 
