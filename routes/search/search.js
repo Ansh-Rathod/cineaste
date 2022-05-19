@@ -67,8 +67,11 @@ router.get(
 	asyncHandler(async (req, res, next) => {
 		const { query, username } = req.query
 		const { page } = req.query
+
 		axios
-			.get(baseUrl + 'search/movie' + api_key + `&page=${page}&query=${query}`)
+			.get(
+				baseUrl + 'search/movie' + api_key + `&page=${page + 1}&query=${query}`
+			)
 			.then(async (data) => {
 				res.status(200).json({
 					success: true,
@@ -102,7 +105,7 @@ router.get(
 		const { query, username } = req.query
 		const { page } = req.query
 		axios
-			.get(baseUrl + 'search/tv' + api_key + `&page=${page}&query=${query}`)
+			.get(baseUrl + 'search/tv' + api_key + `&page=${page + 1}&query=${query}`)
 			.then(async (data) => {
 				res.status(200).json({
 					success: true,
