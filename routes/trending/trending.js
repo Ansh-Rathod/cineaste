@@ -98,8 +98,8 @@ router.get(
 			LEFT JOIN users on reviews.creator_username=users.username  
 			WHERE creator_username not in 
 			(SELECT user_id FROM followers WHERE follower_id='${username}')
-			and created_at > current_date - interval '2 days' and movie is not null 
-                  order by likes desc offset $1 limit 20;
+			and movie is not null 
+                  order by random() desc offset $1 limit 20;
 			`,
 			[offset]
 		)
