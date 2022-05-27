@@ -18,8 +18,10 @@ import searchRoute from './routes/search/search.js'
 import trendingRoute from './routes/trending/trending.js'
 import tvRoute from './routes/tv/tv.js'
 import userRoute from './routes/user/user.js'
+import vReviews from './routes/v2/reviews.js'
 import webRoute from './routes/web/web.js'
 import scaper from './scraper.js'
+
 //
 // configure environment variables
 dotenv.config({ path: '.env' })
@@ -43,6 +45,7 @@ app.use('/api/v1/movies', moviesRoute)
 app.use('/api/v1/tv', tvRoute)
 app.use('/api/v1/search', searchRoute)
 app.use('/api/v1/reviews', reviewRoute)
+app.use('/api/v2/reviews', vReviews)
 app.use('/api/v1/media', mediaRoute)
 app.use('/api/v1/person', personRoute)
 app.use('/api/v1/trending', trendingRoute)
