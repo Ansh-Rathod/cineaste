@@ -276,7 +276,9 @@ router.get(
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`select poster,title,id,rating,release from movies
+			`select poster,title,id,rating,release,
+			(select rating from apprating where id = movie_info.id and type='movie') as rating_by_app	
+			from movies
 			 where '${id}'= ANY(genres) order by popularity desc offset $1 limit 20;`,
 			[offset]
 		)
@@ -289,3 +291,4 @@ router.get(
 )
 
 export default router
+rating_by_app
