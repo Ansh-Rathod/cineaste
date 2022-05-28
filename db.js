@@ -27,6 +27,7 @@ const pool = new Pool({
 // 	user: 'postgres',
 // 	password: 'ansh00',
 // })
+
 // // direct database
 // const pool = new Pool({
 // 	database: 'postgres',
