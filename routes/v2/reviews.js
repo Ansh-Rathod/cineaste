@@ -80,6 +80,7 @@ router.get(
 			WHERE creator_username NOT IN 
 			(SELECT user_id FROM followers WHERE follower_id='${username}')
                   and movie is null 
+			and repling_to='{}'
 			order by reviews.created_at desc offset $1 limit 10;`,
 			[nonFollowerOffset]
 		)
