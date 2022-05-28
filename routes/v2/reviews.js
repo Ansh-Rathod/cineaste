@@ -54,7 +54,9 @@ router.get(
 	asyncHandler(async (req, res, next) => {
 		const { username, page } = req.query
 
-		const offset = (page ?? 0) * 10
+		let followerOffset = (page ?? 0) * 20
+		let nonFollowerOffset = (page ?? 0) * 10
+
 		const followers = await pool.query(
 			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
 			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
@@ -64,10 +66,10 @@ router.get(
 			LEFT JOIN users on reviews.creator_username=users.username  
 			WHERE creator_username IN 
 			(SELECT user_id FROM followers WHERE follower_id='${username}')
-			and reviews.created_at > current_date - interval '4 days'
-			order by reviews.created_at desc offset $1 limit 10;`,
-			[offset]
+			order by reviews.created_at desc offset $1 limit 20;`,
+			[followerOffset]
 		)
+
 		const notFollowers = await pool.query(
 			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
 			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
@@ -78,9 +80,8 @@ router.get(
 			WHERE creator_username NOT IN 
 			(SELECT user_id FROM followers WHERE follower_id='${username}')
                   and movie is null 
-			and reviews.created_at > current_date - interval '4 days'
 			order by reviews.created_at desc offset $1 limit 10;`,
-			[offset]
+			[nonFollowerOffset]
 		)
 
 		function compare(a, b) {
