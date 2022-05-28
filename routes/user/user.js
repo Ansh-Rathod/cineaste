@@ -239,4 +239,33 @@ router.put(
 	})
 )
 
+router.put(
+	'/add/genres',
+	asyncHandler(async (req, res, next) => {
+		const { topics, username } = req.body
+
+		const { rows } = await pool.query(
+			`update users set genres = array_cat(genres,$1) where username=$2;`,
+			[topics, username]
+		)
+
+		res.status(200).json({ success: true, results: rows })
+	})
+)
+
+router.get(
+	'/genres/get/:username',
+	asyncHandler(async (req, res, next) => {
+		const { username } = req.params
+
+		const { rows } = await pool.query(
+			`SELECT array(select distinct unnest (genres)) AS genres
+		from users where username=$1;`,
+			[username]
+		)
+
+		res.status(200).json({ success: true, results: rows[0].genres })
+	})
+)
+
 export default router
