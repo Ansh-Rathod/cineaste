@@ -291,4 +291,3 @@ router.get(
 )
 
 export default router
-rating_by_app
