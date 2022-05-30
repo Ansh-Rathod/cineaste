@@ -21,7 +21,6 @@ import userRoute from './routes/user/user.js'
 import vReviews from './routes/v2/reviews.js'
 import webRoute from './routes/web/web.js'
 import scaper from './scraper.js'
-
 //
 // configure environment variables
 dotenv.config({ path: '.env' })

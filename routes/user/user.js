@@ -198,7 +198,8 @@ router.get(
 			and followers.follower_id = '${username}')) as isfollow
 			from users 
                   where username not in
-                  (select user_id from followers where follower_id = '${username}')		
+                  (select user_id from followers where follower_id = '${username}')	and 
+			(select count(*) from reviews where creator_username =users.username)>0	
 			order by random() limit 20;`
 		)
 		res.status(200).json({ success: true, results: rows })
