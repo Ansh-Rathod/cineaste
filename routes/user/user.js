@@ -293,7 +293,7 @@ router.get(
 			[username]
 		)
 
-		res.status(200).json({ success: true, results: rows[0].genres })
+		res.status(200).json({ success: true, results: rows[0].languages })
 	})
 )
 
