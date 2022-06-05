@@ -268,6 +268,34 @@ router.get(
 		res.status(200).json({ success: true, results: rows[0].genres })
 	})
 )
+router.put(
+	'/add/languages',
+	asyncHandler(async (req, res, next) => {
+		const { topics, username } = req.body
+
+		const { rows } = await pool.query(
+			`update users set languages = array_cat(languages,$1) where username=$2;`,
+			[topics, username]
+		)
+
+		res.status(200).json({ success: true, results: rows })
+	})
+)
+
+router.get(
+	'/languages/get/:username',
+	asyncHandler(async (req, res, next) => {
+		const { username } = req.params
+
+		const { rows } = await pool.query(
+			`SELECT array(select distinct unnest (languages)) AS languages
+		from users where username=$1;`,
+			[username]
+		)
+
+		res.status(200).json({ success: true, results: rows[0].genres })
+	})
+)
 
 router.get(
 	'/genres/get/movies/:id',
