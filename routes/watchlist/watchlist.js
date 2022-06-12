@@ -51,7 +51,7 @@ router.get(
 			(exists  (select 1 from watchlist
 				where watchlist.username='${username}'
 		    and watchlist.media_id = watchlist.media_id and watchlist.media_type=watchlist.media_type)
-			     ) as isWatchListed
+			     ) as iswatchlisted
 			from watchlist where username=$1 order by created desc offset $2 limit 20; `,
       [id, offset]
     )
