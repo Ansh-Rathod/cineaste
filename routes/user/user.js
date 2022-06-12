@@ -272,8 +272,8 @@ router.put(
 	'/add/languages',
 	asyncHandler(async (req, res, next) => {
 		const { topics, username } = req.body
-await pool.query(`update users set languages = '{}' where username = $1`,
-[username])
+		await pool.query(`update users set languages = '{}' where username = $1`,
+			[username])
 		const { rows } = await pool.query(
 			`update users set languages = array_cat(languages,$1) where username=$2;`,
 			[topics, username]

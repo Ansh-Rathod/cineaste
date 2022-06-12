@@ -113,3 +113,15 @@ CREATE TABLE favorites(
   created       timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+CREATE TABLE watchlist(
+
+  id            uuid PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+  username       varchar(255) NOT NULL,
+  media_id      varchar(255) NOT NULL,
+  media_type    text NOT NULL,
+  media_title   varchar(255) NOT NULL,
+  media_poster  text NOT NULL,
+  media_release text NOT NULL,
+  created       timestamptz NOT NULL DEFAULT current_timestamp
+);
+
