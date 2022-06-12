@@ -120,14 +120,9 @@ router.get(
 		var week = getWeek(currentdate)
 		const { rows } = await pool.query(
 			`select *,
-			(exists  (select 1 from favorites
-				where favorites.username='${username}'
-		    and favorites.media_id = movie_info.id and favorites.media_type='movie')
-			     ) as isFavorited,
-			(exists  (select 1 from reviews
-				where reviews.creator_username='${username}'
-		    and reviews.movie->>'id' = movie_info.id and reviews.movie->>'type'='movie')
-			     ) as isReviewd,
+			(exists  (select 1 from favorites where favorites.username='${username}' and favorites.media_id = movie_info.id and favorites.media_type='movie')) as isFavorited,
+			(exists  (select 1 from watchlist where watchlist.username='${username}' and watchlist.media_id = movie_info.id and watchlist.media_type='movie')) as iswatchlisted,
+			(exists  (select 1 from reviews where reviews.creator_username='${username}' and reviews.movie->>'id' = movie_info.id and reviews.movie->>'type'='movie')) as isReviewd,
 			(select rating from apprating where id = movie_info.id and type='movie') as rating_by_app			
 			from movie_info where id='${req.params.id}'and week_num='${week}'; `
 		)
@@ -135,10 +130,10 @@ router.get(
 			axios
 				.get(
 					baseUrl +
-						'movie/' +
-						req.params.id +
-						api_key +
-						'&append_to_response=videos,similar,credits,images'
+					'movie/' +
+					req.params.id +
+					api_key +
+					'&append_to_response=videos,similar,credits,images'
 				)
 				.then(async (data) => {
 					await pool.query(
@@ -172,6 +167,8 @@ router.get(
 							where favorites.username='${username}'
 					    and favorites.media_id = movie_info.id and favorites.media_type='movie')
 						     ) as isFavorited,
+		       	(exists  (select 1 from watchlist where watchlist.username='${username}' and watchlist.media_id = movie_info.id and watchlist.media_type='movie')) as iswatchlisted,
+
 						     (exists  (select 1 from reviews
 							where reviews.creator_username='${username}'
 					    and reviews.movie->>'id' = movie_info.id and reviews.movie->>'type'='movie')

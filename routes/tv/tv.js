@@ -30,7 +30,7 @@ router.get(
 							`insert into trending 
 						(id,
 						 title,
-                                     release,
+             release,
 						 rating,
 						 poster,
 						 language,
@@ -41,8 +41,7 @@ router.get(
 						 type,
 						 popularity
 						 )
-                               values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-                               ;`,
+             values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);`,
 							[
 								movie.id,
 								movie.name,
@@ -139,14 +138,9 @@ router.get(
 		var week = getWeek(currentdate)
 		const { rows } = await pool.query(
 			`select *,
-			(exists  (select 1 from favorites
-				where favorites.username='${username}'
-		    and favorites.media_id = tv_info.id and favorites.media_type='tv')
-			     ) as isFavorited,
-			     (exists  (select 1 from reviews
-				where reviews.creator_username='${username}'
-		    and reviews.movie->>'id' = tv_info.id and reviews.movie->>'type'='tv')
-			     ) as isReviewd,
+			(exists  (select 1 from favorites where favorites.username='${username}' and favorites.media_id = tv_info.id and favorites.media_type='tv')) as isFavorited,
+			(exists  (select 1 from watchlist where watchlist.username='${username}' and watchlist.media_id = tv_info.id and watchlist.media_type='tv')) as iswatchlisted,
+			(exists  (select 1 from reviews where reviews.creator_username='${username}' and reviews.movie->>'id' = tv_info.id and reviews.movie->>'type'='tv')) as isReviewd,
 			(select rating from apprating where id = tv_info.id and type='tv') as rating_by_app
 			from tv_info where id='${req.params.id}' and week_num='${week}'; `
 		)
@@ -154,10 +148,10 @@ router.get(
 			axios
 				.get(
 					baseUrl +
-						'tv/' +
-						req.params.id +
-						api_key +
-						'&append_to_response=videos,similar,credits,images'
+					'tv/' +
+					req.params.id +
+					api_key +
+					'&append_to_response=videos,similar,credits,images'
 				)
 				.then(async (data) => {
 					await pool.query(`delete from tv_info where id = '${req.params.id}';`)
@@ -191,6 +185,9 @@ router.get(
 							where favorites.username='${username}'
 					    and favorites.media_id = tv_info.id and favorites.media_type='tv')
 						     ) as isFavorited,
+
+			(exists  (select 1 from watchlist where watchlist.username='${username}' and watchlist.media_id = tv_info.id and watchlist.media_type='tv')) as iswatchlisted,
+
 						     (exists  (select 1 from reviews
 							where reviews.creator_username='${username}'
 					    and reviews.movie->>'id' = tv_info.id and reviews.movie->>'type'='tv')
