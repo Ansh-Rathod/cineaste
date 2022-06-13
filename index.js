@@ -6,6 +6,7 @@ import data from './data.js'
 import errorHandler from './middlewares/error-handler.js'
 import adminRoute from './routes/admin/admin.js'
 import favoriteRoute from './routes/favorites/favorite.js'
+import watchedRoute from './routes/watched/watched.js'
 import watchlistRoute from './routes/watchlist/watchlist.js'
 import genreRoute from './routes/genre/genre.js'
 import gifRoute from './routes/gifs/gifs.js'
@@ -51,6 +52,7 @@ app.use('/api/v1/person', personRoute)
 app.use('/api/v1/trending', trendingRoute)
 app.use('/api/v1/report', reportRoute)
 app.use('/api/v1/favorite', favoriteRoute)
+app.use('/api/v1/watched', watchedRoute)
 app.use('/api/v1/watchlist', watchlistRoute)
 app.use('/api/v1/web', webRoute)
 app.use('/api/v1/genres', genreRoute)

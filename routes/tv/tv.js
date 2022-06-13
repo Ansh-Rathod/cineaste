@@ -140,6 +140,7 @@ router.get(
 			`select *,
 			(exists  (select 1 from favorites where favorites.username='${username}' and favorites.media_id = tv_info.id and favorites.media_type='tv')) as isFavorited,
 			(exists  (select 1 from watchlist where watchlist.username='${username}' and watchlist.media_id = tv_info.id and watchlist.media_type='tv')) as iswatchlisted,
+			(exists  (select 1 from watched where watched.username='${username}' and watched.media_id = tv_info.id and watched.media_type='tv')) as iswatched,
 			(exists  (select 1 from reviews where reviews.creator_username='${username}' and reviews.movie->>'id' = tv_info.id and reviews.movie->>'type'='tv')) as isReviewd,
 			(select rating from apprating where id = tv_info.id and type='tv') as rating_by_app
 			from tv_info where id='${req.params.id}' and week_num='${week}'; `
@@ -186,7 +187,8 @@ router.get(
 					    and favorites.media_id = tv_info.id and favorites.media_type='tv')
 						     ) as isFavorited,
 
-			(exists  (select 1 from watchlist where watchlist.username='${username}' and watchlist.media_id = tv_info.id and watchlist.media_type='tv')) as iswatchlisted,
+		       	(exists  (select 1 from watchlist where watchlist.username='${username}' and watchlist.media_id = tv_info.id and watchlist.media_type='tv')) as iswatchlisted,
+		      	(exists  (select 1 from watched where watched.username='${username}' and watched.media_id = tv_info.id and watched.media_type='tv')) as iswatched,
 
 						     (exists  (select 1 from reviews
 							where reviews.creator_username='${username}'
