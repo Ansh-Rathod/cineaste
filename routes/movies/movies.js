@@ -88,20 +88,24 @@ router.get(
 )
 
 function buildImages(imgs) {
+
 	const { backdrops, logos, posters } = imgs
 	let allimgs = []
 
 	const backdrops_imgs = backdrops.map((img) => {
 		return {
-			file_path: img.file_path,
+			file_path: img.file_path
 		}
 	})
+
 	const poster_imgs = posters.map((img) => {
 		return { file_path: img.file_path }
 	})
+
 	const logo_imgs = logos.map((img) => {
 		return { file_path: img.file_path }
 	})
+
 	allimgs = allimgs.concat(backdrops_imgs, poster_imgs, logo_imgs)
 
 	return allimgs
@@ -230,7 +234,12 @@ router.get(
 							{ results: data.data.production_countries },
 							{ results: data.data.spoken_languages },
 							week,
-							{ results: buildImages(data.data.images) },
+							{
+								results: buildImages(data.data.images),
+								total_posters: data.data.images.posters.length,
+								total_backdrops: data.data.images.backdrops.length,
+								total_logos: data.data.images.logos.length
+							},
 						]
 					)
 					res.status(200).json({ success: true, results: rows })
