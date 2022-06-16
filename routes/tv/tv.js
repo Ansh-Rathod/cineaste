@@ -252,7 +252,25 @@ router.get(
 							{ results: data.data.production_countries },
 							{ results: data.data.spoken_languages },
 							week,
-							{ results: buildImages(data.data.images) },
+							{
+								results: buildImages(data.data.images),
+								posters: data.data.images.posters.map((img) => {
+									return {
+										file_path: img.file_path
+									}
+								})
+								,
+								backdrops: data.data.images.backdrops.map((img) => {
+									return {
+										file_path: img.file_path
+									}
+								}),
+								logos: data.data.images.logos.map((img) => {
+									return {
+										file_path: img.file_path
+									}
+								})
+							},
 						]
 					)
 					res.status(200).json({ success: true, results: rows })

@@ -236,9 +236,22 @@ router.get(
 							week,
 							{
 								results: buildImages(data.data.images),
-								total_posters: data.data.images.posters.length,
-								total_backdrops: data.data.images.backdrops.length,
-								total_logos: data.data.images.logos.length
+								posters: data.data.images.posters.map((img) => {
+									return {
+										file_path: img.file_path
+									}
+								})
+								,
+								backdrops: data.data.images.backdrops.map((img) => {
+									return {
+										file_path: img.file_path
+									}
+								}),
+								logos: data.data.images.logos.map((img) => {
+									return {
+										file_path: img.file_path
+									}
+								})
 							},
 						]
 					)
