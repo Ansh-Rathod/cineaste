@@ -434,7 +434,7 @@ router.get(
 		(exists  (select 1 from followers where followers.user_id=users.username
 		and followers.follower_id = '${username}')) as isfollow
 		from liked left join users on liked.user_id=users.username
-	      where review_id='${id}' order by isfollow offset $1 limit 20;`,
+	      where review_id='${id}' order by isfollow desc  offset $1 limit 20;`,
 
 			[offset]
 		)
