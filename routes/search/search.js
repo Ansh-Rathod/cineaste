@@ -145,7 +145,7 @@ router.get(
 			(exists  (select 1 from followers
 				where followers.user_id=users.username and followers.follower_id ='${username}')
 			     ) as isfollow
-			from users where lower(display_name) like '%${query}%' or lower(username) like '%${query}%' order by created desc offset $1 limit 20;`,
+			from users where lower(display_name) like '%${query}%' or lower(username) like '%${query}%' order by isfollow desc offset $1 limit 20;`,
 			[offset]
 		)
 		res.status(200).send({ success: true, results: rows })

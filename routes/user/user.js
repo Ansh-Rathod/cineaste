@@ -157,7 +157,7 @@ router.get(
 		) as isfollow
 		from followers left join users 
 		on followers.user_id = users.username where follower_id = $1 
-		order by followers.created desc offset $2 limit 20`,
+		order by isfollow desc offset $2 limit 20`,
 			[req.params.id, offset]
 		)
 		res.status(200).json({ success: true, results: rows })
@@ -178,7 +178,7 @@ router.get(
 						     ) as isfollow
 			from followers left join users 
 			on followers.follower_id = users.username where user_id = $1 
-			order by followers.created desc offset $2 limit 20;`,
+			order by isfollow desc offset $2 limit 20;`,
 			[req.params.id, offset]
 		)
 		res.status(200).json({ success: true, results: rows })
