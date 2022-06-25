@@ -145,6 +145,11 @@ router.get(
 			(select rating from apprating where id = tv_info.id and type='tv') as rating_by_app
 			from tv_info where id='${req.params.id}' and week_num='${week}'; `
 		)
+
+		const watched = await pool.query(`select users.avatar_url, (exists  (select 1 from followers where followers.user_id=watched.username and followers.follower_id ='${username}')) as isfollow
+           from watched left join users on watched.username = users.username where watched.media_id='${req.params.id}' and media_type='tv' order by isfollow desc limit 5;`);
+
+
 		if (rows.length === 0) {
 			axios
 				.get(
@@ -273,7 +278,13 @@ router.get(
 							},
 						]
 					)
-					res.status(200).json({ success: true, results: rows })
+					res.status(200).json({
+						success: true, results: rows,
+
+
+						watched: watched.rows.map(e => { return e.avatar_url })
+
+					})
 				})
 				.catch((err) => {
 					console.log(err)
@@ -282,7 +293,12 @@ router.get(
 						.json({ success: false, message: 'mvoie info not found' })
 				})
 		} else {
-			res.status(200).json({ success: true, results: rows })
+			res.status(200).json({
+				success: true, results: rows,
+
+				watched: watched.rows.map(e => { return e.avatar_url })
+
+			})
 		}
 	})
 )

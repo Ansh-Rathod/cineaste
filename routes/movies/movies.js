@@ -131,6 +131,11 @@ router.get(
 			(select rating from apprating where id = movie_info.id and type='movie') as rating_by_app			
 			from movie_info where id='${req.params.id}'and week_num='${week}'; `
 		)
+
+		const watched = await pool.query(`select users.avatar_url, (exists  (select 1 from followers where followers.user_id=watched.username and followers.follower_id ='${username}')) as isfollow
+           from watched left join users on watched.username = users.username where watched.media_id='${req.params.id}' and media_type='movie' order by isfollow desc limit 5;`);
+
+
 		if (rows.length === 0) {
 			axios
 				.get(
@@ -138,7 +143,7 @@ router.get(
 					'movie/' +
 					req.params.id +
 					api_key +
-					'&append_to_response=videos,similar,credits,images'
+					'&append_to_response=videos,similar,credits,images,watch/providers'
 				)
 				.then(async (data) => {
 					await pool.query(
@@ -255,7 +260,12 @@ router.get(
 							},
 						]
 					)
-					res.status(200).json({ success: true, results: rows })
+
+					res.status(200).json({
+						success: true, results: rows,
+						watched: watched.rows.map(e => { return e.avatar_url })
+
+					})
 				})
 				.catch((err) => {
 					console.log(err)
@@ -264,7 +274,13 @@ router.get(
 						.json({ success: false, message: 'mvoie info not found' })
 				})
 		} else {
-			res.status(200).json({ success: true, results: rows })
+			res.status(200).json({
+				success: true, results: rows
+				,
+				watched: watched.rows.map(e => { return e.avatar_url })
+
+
+			})
 		}
 	})
 )
