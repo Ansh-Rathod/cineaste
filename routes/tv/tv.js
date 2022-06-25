@@ -146,7 +146,10 @@ router.get(
 			from tv_info where id='${req.params.id}' and week_num='${week}'; `
 		)
 
-		const watched = await pool.query(`select users.avatar_url, (exists  (select 1 from followers where followers.user_id=watched.username and followers.follower_id ='${username}')) as isfollow
+		const watched = await pool.query(`select users.avatar_url,
+		(select count(*) from watched where watched.media_id='${req.params.id}'and watched.media_type='tv'),
+
+		 (exists  (select 1 from followers where followers.user_id=watched.username and followers.follower_id ='${username}')) as isfollow
            from watched left join users on watched.username = users.username where watched.media_id='${req.params.id}' and media_type='tv' order by isfollow desc limit 5;`);
 
 
@@ -279,10 +282,13 @@ router.get(
 						]
 					)
 					res.status(200).json({
-						success: true, results: rows,
-
-
-						watched: watched.rows.map(e => { return e.avatar_url })
+						success: true, results: [{
+							...rows[0],
+							...{
+								watchedCount: watched.rows.length !== 0 ? watched.rows[0].count : 0,
+								watched: watched.rows.map(e => { return e.avatar_url })
+							}
+						}],
 
 					})
 				})
@@ -294,9 +300,13 @@ router.get(
 				})
 		} else {
 			res.status(200).json({
-				success: true, results: rows,
-
-				watched: watched.rows.map(e => { return e.avatar_url })
+				success: true, results: [{
+					...rows[0],
+					...{
+						watchedCount: watched.rows.length !== 0 ? watched.rows[0].count : 0,
+						watched: watched.rows.map(e => { return e.avatar_url })
+					}
+				}],
 
 			})
 		}
