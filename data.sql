@@ -2,6 +2,7 @@ SET CLIENT_ENCODING TO 'utf8';
 drop schema public cascade;
 create schema public;
 -- eR5vZ-JcXKaE5Mv
+-- pg_dump -U postgres --table=movies --data-only --column-inserts postgres > data.sql
 -- pg_dump -U username -h localhost databasename >> sqlfile.sql
 -- \df public.*
 -- pg_dump -U postgres -h localhost -p 5432 postgres > backup.sql

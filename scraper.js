@@ -6,16 +6,6 @@ import asyncHandler from './methods/async-function.js'
 const app = express.Router()
 
 const endpoints = [
-	// { year: '1990', page: 291 },
-	// { year: '1991', page: 277 },
-	// { year: '1992', page: 271 },
-	// { year: '1993', page: 276 },
-	// { year: '1994', page: 276 },
-	// { year: '1995', page: 286 },
-	// { year: '1996', page: 291 },
-	// { year: '1997', page: 312 },
-	// { year: '1998', page: 325 },
-	// { year: '2022', page: 414 },
 
 	// {
 	// 	start: '2000-01-01',
@@ -72,6 +62,7 @@ const endpoints = [
 	// 	end: '2007-12-31',
 	// 	page: 241,
 	// },
+
 	// {
 	// 	start: '2008-01-01',
 	// 	end: '2008-07-31',
@@ -273,6 +264,11 @@ const endpoints = [
 	// 	page: 186,
 	// },
 	// {
+	// 	start: '2022-05-01',
+	// 	end: '2021-12-31',
+	// 	page: 291,
+	// },
+	// {
 	// 	year: '2022',
 	// 	page: 500,
 	// },
@@ -292,6 +288,10 @@ const endpoints = [
 	// 	year: '1987',
 	// 	page: 273,
 	// },
+
+
+
+
 	// { year: '1940', page: 87 },
 	// { year: '1941', page: 85 },
 	// { year: '1942', page: 83 },
@@ -304,37 +304,120 @@ const endpoints = [
 	// { year: '1949', page: 102 },
 	// { year: '1950', page: 104 },
 	// { year: '1951', page: 105 },
-	{ year: '1952', page: 105 },
-	{ year: '1953', page: 110 },
-	{ year: '1954', page: 110 },
-	{ year: '1955', page: 117 },
-	{ year: '1956', page: 125 },
-	{ year: '1957', page: 129 },
-	{ year: '1958', page: 139 },
-	{ year: '1959', page: 137 },
-	{ year: '1960', page: 144 },
-	{ year: '1961', page: 145 },
-	{ year: '1962', page: 144 },
-	{ year: '1963', page: 151 },
-	{ year: '1964', page: 162 },
-	{ year: '1965', page: 174 },
-	{ year: '1966', page: 175 },
-	{ year: '1967', page: 192 },
-	{ year: '1968', page: 201 },
-	{ year: '1969', page: 211 },
-	{ year: '1970', page: 214 },
-	{ year: '1971', page: 213 },
-	{ year: '1972', page: 222 },
-	{ year: '1973', page: 216 },
-	{ year: '1974', page: 225 },
-	{ year: '1975', page: 213 },
-	{ year: '1976', page: 210 },
-	{ year: '1977', page: 211 },
-	{ year: '1978', page: 224 },
-	{ year: '1979', page: 234 },
-	{ year: '1980', page: 228 },
+	// { year: '1952', page: 105 },
+	// { year: '1953', page: 110 },
+	// { year: '1954', page: 110 },
+	// { year: '1955', page: 117 },
+	// { year: '1956', page: 125 },
+	// { year: '1957', page: 129 },
+	// { year: '1958', page: 139 },
+	// { year: '1959', page: 137 },
+	// { year: '1960', page: 144 },
+	// { year: '1961', page: 145 },
+	// { year: '1962', page: 144 },
+	// { year: '1963', page: 151 },
+	// { year: '1964', page: 162 },
+	// { year: '1965', page: 174 },
+	// { year: '1966', page: 175 },
+	// { year: '1967', page: 192 },
+	// { year: '1968', page: 201 },
+	// { year: '1969', page: 211 },
+	// { year: '1970', page: 214 },
+	// { year: '1971', page: 213 },
+	// { year: '1972', page: 222 },
+	// { year: '1973', page: 216 },
+	// { year: '1974', page: 225 },
+	// { year: '1975', page: 213 },
+	// { year: '1976', page: 210 },
+	// { year: '1977', page: 211 },
+	// { year: '1978', page: 224 },
+	// { year: '1979', page: 234 },
+	// { year: '1980', page: 228 },
+
+	// { year: '1981', page: 243 },
+	// { year: '1982', page: 255 },
+	// { year: '1983', page: 254 },
+	// { year: '1984', page: 266 },
+	// { year: '1985', page: 261 },
+	// { year: '1986', page: 266 },
+	// { year: '1987', page: 280 }, 194
+	{ year: '1988', page: 285 },
+	{ year: '1989', page: 296 },
+	{ year: '1990', page: 302 },
+	{ year: '1991', page: 287 },
+	{ year: '1992', page: 283 },
+	{ year: '1993', page: 278 },
+	{ year: '1994', page: 287 },
+	{ year: '1995', page: 286 },
+	{ year: '1996', page: 291 },
+	{ year: '1997', page: 312 },
+	{ year: '1998', page: 325 },
+	{ year: '1999', page: 325 },
 ]
 // `https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
+
+
+// app.get(
+// 	'/movies',
+// 	asyncHandler(async (req, res, next) => {
+// 		console.log(req.connection.remoteAddress)
+// 		for (let j = 0; j < endpoints.length; j++) {
+// 			var endpoint = endpoints[j]
+// 			for (let i = 1; i <= endpoint.page; i++) {
+// 				const { data } = await axios.get(
+// 					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
+// 				)
+
+// 				for (let index = 0; index < data.results.length; index++) {
+// 					const movie = data.results[index]
+// 					await pool.query(
+// 						`insert into movies 
+// 						(id,
+// 						 title,
+// release,
+// 						 rating,
+// 						 poster,
+// 						 language,
+// 						 backdrop,
+// 						 overview,
+// 						 genres,
+// 						 popularity,
+// 						 adult)
+//                                values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+//                                on conflict (id) do update set 
+// 					 title=$2,
+// 					 release=$3,
+// 					 rating=$4,
+// 					 poster=$5,
+// 					 language=$6,
+// 					 backdrop=$7,
+// 					 overview=$8,
+// 					 genres=$9,
+// 					 popularity=$10,
+// 					 adult=$11;`,
+// 						[
+// 							movie.id,
+// 							movie.title,
+// 							movie.release_date,
+// 							movie.vote_average,
+// 							movie.poster_path,
+// 							movie.original_language,
+// 							movie.backdrop_path,
+// 							movie.overview,
+// 							movie.genre_ids,
+// 							movie.popularity,
+// 							movie.adult,
+// 						]
+// 					)
+// 				}
+// 				console.log(`>>>>  total ${endpoint.page}  ${endpoint.start} pages of ${i} scraped..`)
+// 			}
+// 			console.log(`\n completed//////\n\n\n\n`)
+// 		}
+// 		res.json('done')
+// 	})
+// )
+
 
 app.get(
 	'/movies',
@@ -344,10 +427,7 @@ app.get(
 			var endpoint = endpoints[j]
 			for (let i = 1; i <= endpoint.page; i++) {
 				const { data } = await axios.get(
-					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&page=${i.toString()}&include_adult=true&year=${
-						endpoint.year
-					}`
-				)
+					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&page=${i.toString()}&include_adult=true&year=${endpoint.year}`)
 
 				for (let index = 0; index < data.results.length; index++) {
 					const movie = data.results[index]
