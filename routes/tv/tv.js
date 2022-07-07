@@ -98,7 +98,7 @@ router.get(
 			release,
 			poster,
 			rating from tvshows
-			where language =$1 and poster is not null and rating > 4 and release like '2022-05%' order by random() desc limit 20;`,
+			where language =$1 and poster is not null and rating > 4 and release like '2022%' order by random() limit 20;`,
 			[language]
 		)
 
