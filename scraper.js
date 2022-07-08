@@ -265,7 +265,7 @@ const endpoints = [
 	// },
 	// {
 	// 	start: '2022-05-01',
-	// 	end: '2021-12-31',
+	// 	end: '2022-12-31',
 	// 	page: 291,
 	// },
 	// {
@@ -341,82 +341,20 @@ const endpoints = [
 	// { year: '1985', page: 261 },
 	// { year: '1986', page: 266 },
 	// { year: '1987', page: 280 }, 194
-	{ year: '1988', page: 285 },
-	{ year: '1989', page: 296 },
-	{ year: '1990', page: 302 },
-	{ year: '1991', page: 287 },
-	{ year: '1992', page: 283 },
-	{ year: '1993', page: 278 },
-	{ year: '1994', page: 287 },
-	{ year: '1995', page: 286 },
-	{ year: '1996', page: 291 },
-	{ year: '1997', page: 312 },
-	{ year: '1998', page: 325 },
-	{ year: '1999', page: 325 },
+	// { year: '1988', page: 285 },
+	// { year: '1989', page: 296 },
+	// { year: '1990', page: 302 },
+	// { year: '1991', page: 287 },
+	// { year: '1992', page: 283 },
+	// { year: '1993', page: 278 },
+	// { year: '1994', page: 287 },
+	// { year: '1995', page: 286 },
+	// { year: '1996', page: 291 },
+	// { year: '1997', page: 312 },
+	// { year: '1998', page: 325 },
+	// { year: '1999', page: 325 },
 ]
 // `https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
-
-
-// app.get(
-// 	'/movies',
-// 	asyncHandler(async (req, res, next) => {
-// 		console.log(req.connection.remoteAddress)
-// 		for (let j = 0; j < endpoints.length; j++) {
-// 			var endpoint = endpoints[j]
-// 			for (let i = 1; i <= endpoint.page; i++) {
-// 				const { data } = await axios.get(
-// 					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
-// 				)
-
-// 				for (let index = 0; index < data.results.length; index++) {
-// 					const movie = data.results[index]
-// 					await pool.query(
-// 						`insert into movies 
-// 						(id,
-// 						 title,
-// release,
-// 						 rating,
-// 						 poster,
-// 						 language,
-// 						 backdrop,
-// 						 overview,
-// 						 genres,
-// 						 popularity,
-// 						 adult)
-//                                values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-//                                on conflict (id) do update set 
-// 					 title=$2,
-// 					 release=$3,
-// 					 rating=$4,
-// 					 poster=$5,
-// 					 language=$6,
-// 					 backdrop=$7,
-// 					 overview=$8,
-// 					 genres=$9,
-// 					 popularity=$10,
-// 					 adult=$11;`,
-// 						[
-// 							movie.id,
-// 							movie.title,
-// 							movie.release_date,
-// 							movie.vote_average,
-// 							movie.poster_path,
-// 							movie.original_language,
-// 							movie.backdrop_path,
-// 							movie.overview,
-// 							movie.genre_ids,
-// 							movie.popularity,
-// 							movie.adult,
-// 						]
-// 					)
-// 				}
-// 				console.log(`>>>>  total ${endpoint.page}  ${endpoint.start} pages of ${i} scraped..`)
-// 			}
-// 			console.log(`\n completed//////\n\n\n\n`)
-// 		}
-// 		res.json('done')
-// 	})
-// )
 
 
 app.get(
@@ -427,7 +365,8 @@ app.get(
 			var endpoint = endpoints[j]
 			for (let i = 1; i <= endpoint.page; i++) {
 				const { data } = await axios.get(
-					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&page=${i.toString()}&include_adult=true&year=${endpoint.year}`)
+					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
+				)
 
 				for (let index = 0; index < data.results.length; index++) {
 					const movie = data.results[index]
@@ -435,7 +374,7 @@ app.get(
 						`insert into movies 
 						(id,
 						 title,
-                                     release,
+release,
 						 rating,
 						 poster,
 						 language,
@@ -471,13 +410,142 @@ app.get(
 						]
 					)
 				}
-				console.log(`>>>>  total ${endpoint.page} pages of ${i} scraped..`)
+				console.log(`>>>>  total ${endpoint.page}  ${endpoint.start} pages of ${i} scraped..`)
 			}
 			console.log(`\n completed//////\n\n\n\n`)
 		}
 		res.json('done')
 	})
 )
+
+
+app.get(
+	'/anime-movies',
+	asyncHandler(async (req, res, next) => {
+		console.log(req.connection.remoteAddress)
+
+		for (let i = 1; i <= 80; i++) {
+			const { data } = await axios.get(
+				`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&include_adult=true&with_keywords=210024&page=${i}`
+			)
+
+			for (let index = 0; index < data.results.length; index++) {
+				const movie = data.results[index]
+				await pool.query(
+					`insert into anime 
+						(id,
+						 title,
+						 release,
+						 rating,
+						 poster,
+						 language,
+						 backdrop,
+						 overview,
+						 genres,
+						 popularity,
+						 adult,
+						 type
+						 )
+                               values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+                               on conflict (id) do update set 
+					 title=$2,
+					 release=$3,
+					 rating=$4,
+					 poster=$5,
+					 language=$6,
+					 backdrop=$7,
+					 overview=$8,
+					 genres=$9,
+					 popularity=$10,
+					 adult=$11,
+					 type=$12;`,
+
+					[
+						movie.id,
+						movie.title,
+						movie.release_date,
+						movie.vote_average,
+						movie.poster_path,
+						movie.original_language,
+						movie.backdrop_path,
+						movie.overview,
+						movie.genre_ids,
+						movie.popularity,
+						movie.adult,
+						'movie'
+					]
+				)
+			}
+			console.log(`>>>>  total pages of ${i} scraped..`)
+		}
+		console.log(`\n completed//////\n\n\n\n`)
+
+		res.json('done')
+	}
+	)
+)
+
+
+
+// app.get(
+// 	'/movies',
+// 	asyncHandler(async (req, res, next) => {
+// 		console.log(req.connection.remoteAddress)
+// 		for (let j = 0; j < endpoints.length; j++) {
+// 			var endpoint = endpoints[j]
+// 			for (let i = 1; i <= endpoint.page; i++) {
+// 				const { data } = await axios.get(
+// 					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&page=${i.toString()}&include_adult=true&year=${endpoint.year}`)
+
+// 				for (let index = 0; index < data.results.length; index++) {
+// 					const movie = data.results[index]
+// 					await pool.query(
+// 						`insert into movies 
+// 						(id,
+// 						 title,
+//                                      release,
+// 						 rating,
+// 						 poster,
+// 						 language,
+// 						 backdrop,
+// 						 overview,
+// 						 genres,
+// 						 popularity,
+// 						 adult)
+//                                values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+//                                on conflict (id) do update set 
+// 					 title=$2,
+// 					 release=$3,
+// 					 rating=$4,
+// 					 poster=$5,
+// 					 language=$6,
+// 					 backdrop=$7,
+// 					 overview=$8,
+// 					 genres=$9,
+// 					 popularity=$10,
+// 					 adult=$11;`,
+// 						[
+// 							movie.id,
+// 							movie.title,
+// 							movie.release_date,
+// 							movie.vote_average,
+// 							movie.poster_path,
+// 							movie.original_language,
+// 							movie.backdrop_path,
+// 							movie.overview,
+// 							movie.genre_ids,
+// 							movie.popularity,
+// 							movie.adult,
+// 						]
+// 					)
+// 				}
+// 				console.log(`>>>>  total ${endpoint.page} pages of ${i} scraped..`)
+// 			}
+// 			console.log(`\n completed//////\n\n\n\n`)
+// 		}
+// 		res.json('done')
+// 	})
+// )
 
 const tvEndpoint = [
 	// {
@@ -701,6 +769,7 @@ const tvEndpoint = [
 		page: 19,
 	},
 ]
+
 app.get(
 	'/tv',
 	asyncHandler(async (req, res, next) => {
@@ -756,6 +825,67 @@ app.get(
 			}
 			console.log(`\n//////${endpoint.year} completed//////\n\n\n\n`)
 		}
+		res.json('done')
+	})
+)
+
+app.get(
+	'/anime-tv',
+	asyncHandler(async (req, res, next) => {
+
+		for (let i = 1; i <= 134; i++) {
+			const { data } = await axios.get(
+				`https://api.themoviedb.org/3/discover/tv?api_key=b6e66a75ceca7996c5772ddd0656dd1b&include_adult=true&with_keywords=210024&page=${i}`
+			)
+
+			for (let index = 0; index < data.results.length; index++) {
+				const movie = data.results[index]
+				await pool.query(
+					`insert into anime 
+						(id,
+						 title,
+                                     release,
+						 rating,
+						 poster,
+						 language,
+						 backdrop,
+						 overview,
+						 popularity,
+						 genres,
+						 type
+						 )
+                               values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+                               on conflict (id) do update set
+					 title=$2,
+					 release=$3,
+					 rating=$4,
+					 poster=$5,
+					 language=$6,
+					 backdrop=$7,
+					 overview=$8,
+					 popularity=$9,
+					 genres=$10,
+					 type=$11;`,
+					[
+						movie.id,
+						movie.name,
+						movie.first_air_date,
+						movie.vote_average,
+						movie.poster_path,
+						movie.original_language,
+						movie.backdrop_path,
+						movie.overview,
+						movie.popularity,
+						movie.genre_ids,
+						'tv'
+					]
+				)
+			}
+			console.log(
+				`>>>> from  pages of ${i} scraped..`
+			)
+		}
+		console.log(`\n//////${endpoint.year} completed//////\n\n\n\n`)
 		res.json('done')
 	})
 )

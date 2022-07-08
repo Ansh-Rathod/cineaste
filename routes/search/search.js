@@ -63,6 +63,25 @@ router.get(
 	})
 )
 router.get(
+	'/anime',
+	asyncHandler(async (req, res, next) => {
+		const { query, username } = req.query
+		const { page } = req.query
+		const offset = (page ?? 0) * 20
+
+		const { rows } = await pool.query(
+			`select id,title,rating,poster,release,type
+			,    (exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		    and reviews.movie->>'id' = anime.id and reviews.movie->>'type'=anime.type)
+			     ) as isReviewd
+			from anime where lower(title) like '%${query}%' order by popularity desc offset $1 limit 20;`,
+			[offset]
+		)
+		res.status(200).send({ success: true, results: rows })
+	})
+)
+router.get(
 	'/full/movies',
 	asyncHandler(async (req, res, next) => {
 		const { query, username } = req.query

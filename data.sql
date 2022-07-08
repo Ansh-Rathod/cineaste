@@ -42,6 +42,23 @@ CREATE TABLE movies(
   created    timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+CREATE TABLE anime(
+  id         varchar(255) PRIMARY KEY NOT NULL,
+  title      text NOT NULL,
+  type       text not null,
+  release    text,
+  rating     float4 NOT NULL,
+  popularity float4 NOT NULL,
+  poster     text,
+  language   text,
+  backdrop   text,
+  overview   text,
+  genres     text[] DEFAULT '{}',
+  adult      boolean NOT NULL DEFAULT false,
+  created    timestamptz NOT NULL DEFAULT current_timestamp
+);
+
+
 CREATE TABLE tvshows(
   id         varchar(255) PRIMARY KEY NOT NULL,
   title      text NOT NULL,
