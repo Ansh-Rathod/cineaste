@@ -27,58 +27,158 @@ router.get(
 router.get(
 	'/movies',
 	asyncHandler(async (req, res, next) => {
-		const { query, username } = req.query
+		const { query, username, lang, year } = req.query
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
+		if (lang === undefined && year === undefined) {
 
-		const { rows } = await pool.query(
-			`select id,title,rating,poster,release,
+			console.log('no language and year')
+			const { rows } = await pool.query(
+				`select id,title,rating,poster,release,
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
 			     ) as isReviewd
 			from movies where lower(title) like '%${query}%' order by popularity desc offset $1 limit 20;`,
-			[offset]
-		)
-		res.status(200).send({ success: true, results: rows })
+				[offset]
+			)
+			res.status(200).send({ success: true, results: rows })
+		} else if (lang === undefined && year !== undefined) {
+
+			console.log('no language but year')
+			const { rows } = await pool.query(
+				`select id,title,rating,poster,release,
+			(exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
+			     ) as isReviewd
+			from movies where lower(title) like '%${query}%' and release like '${year}%' order by popularity desc offset $1 limit 20;`,
+				[offset]
+			)
+			res.status(200).send({ success: true, results: rows })
+		} else if (lang !== undefined && year === undefined) {
+
+			console.log('language but no year')
+			const { rows } = await pool.query(
+				`select id,title,rating,poster,release,
+			(exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
+			     ) as isReviewd
+			from movies where lower(title) like '%${query}%' and language='${lang}' order by popularity desc offset $1 limit 20;`,
+				[offset]
+			)
+			res.status(200).send({ success: true, results: rows })
+		} else {
+
+			const { rows } = await pool.query(
+				`select id,title,rating,poster,release,
+			(exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
+			     ) as isReviewd
+			from movies where lower(title) like '%${query}%' and release like '${year}%' and language='${lang}' order by popularity desc offset $1 limit 20;`,
+				[offset]
+			)
+			res.status(200).send({ success: true, results: rows })
+		}
+
+
 	})
 )
 router.get(
 	'/tv',
 	asyncHandler(async (req, res, next) => {
-		const { query, username } = req.query
+		const { query, username, lang, year } = req.query
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
+		if (lang === undefined && year === undefined) {
 
-		const { rows } = await pool.query(
-			`select id,title,rating,poster,release
+			const { rows } = await pool.query(
+				`select id,title,rating,poster,release
 			,    (exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		    and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
 			     ) as isReviewd
 			from tvshows where lower(title) like '%${query}%' order by popularity desc offset $1 limit 20;`,
-			[offset]
-		)
-		res.status(200).send({ success: true, results: rows })
+				[offset]
+			)
+			res.status(200).send({ success: true, results: rows })
+		} else if (lang === undefined && year !== undefined) {
+
+			console.log('no language but year')
+			const { rows } = await pool.query(
+				`select id,title,rating,poster,release,
+			(exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
+			     ) as isReviewd
+			from tvshows where lower(title) like '%${query}%' and release like '${year}%' order by popularity desc offset $1 limit 20;`,
+				[offset]
+			)
+			res.status(200).send({ success: true, results: rows })
+		} else if (lang !== undefined && year === undefined) {
+
+			console.log('language but no year')
+			const { rows } = await pool.query(
+				`select id,title,rating,poster,release,
+			(exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
+			     ) as isReviewd
+			from tvshows where lower(title) like '%${query}%' and language='${lang}' order by popularity desc offset $1 limit 20;`,
+				[offset]
+			)
+			res.status(200).send({ success: true, results: rows })
+		} else {
+
+			const { rows } = await pool.query(
+				`select id,title,rating,poster,release,
+			(exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
+			     ) as isReviewd
+			from tvshows where lower(title) like '%${query}%' and release like '${year}%' and language='${lang}' order by popularity desc offset $1 limit 20;`,
+				[offset]
+			)
+			res.status(200).send({ success: true, results: rows })
+		}
+
+
 	})
 )
 router.get(
 	'/anime',
 	asyncHandler(async (req, res, next) => {
-		const { query, username } = req.query
+		const { query, username, year } = req.query
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
+		if (year !== undefined) {
 
-		const { rows } = await pool.query(
-			`select id,title,rating,poster,release,type
+			console.log('no language but year')
+			const { rows } = await pool.query(
+				`select id,title,rating,poster,release,type,
+			(exists  (select 1 from reviews
+				where reviews.creator_username='${username}'
+		      and reviews.movie->>'id' = anime.id and reviews.movie->>'type'=anime.type)
+			     ) as isReviewd
+			from anime where lower(title) like '%${query}%' and release like '${year}%' order by popularity desc offset $1 limit 20;`,
+				[offset]
+			)
+			res.status(200).send({ success: true, results: rows })
+		} else {
+
+			const { rows } = await pool.query(
+				`select id,title,rating,poster,release,type
 			,    (exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		    and reviews.movie->>'id' = anime.id and reviews.movie->>'type'=anime.type)
 			     ) as isReviewd
 			from anime where lower(title) like '%${query}%' order by popularity desc offset $1 limit 20;`,
-			[offset]
-		)
-		res.status(200).send({ success: true, results: rows })
+				[offset]
+			)
+			res.status(200).send({ success: true, results: rows })
+		}
 	})
 )
 router.get(

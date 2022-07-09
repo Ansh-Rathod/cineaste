@@ -30,11 +30,11 @@ const pool = new Pool({
 
 // // direct database
 // const pool = new Pool({
-// 	database: 'postgres',
-// 	host: '143.110.247.159',
-// 	port: 5432,
-// 	user: 'postgres',
-// 	password: 'ansh00',
+//   database: 'postgres',
+//   host: '143.110.247.159',
+//   port: 5432,
+//   user: 'postgres',
+//   password: 'ansh00',
 // })
 
 export default pool
