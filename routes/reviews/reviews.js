@@ -278,7 +278,7 @@ router.get(
 			reported
 			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
-			 WHERE creator_username ='${id}' and repling_to='{}' and movie is null order by reviews.created_at desc offset $1 limit 20;
+			 WHERE creator_username ='${id}' and repling_to='{}' and title is null and movie is null order by reviews.created_at desc offset $1 limit 20;
 			`,
 			[offset]
 		)

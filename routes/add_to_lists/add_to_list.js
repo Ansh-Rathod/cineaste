@@ -33,8 +33,8 @@ router.post('/submit', asyncHandler(async (req, res, next) => {
     images,
   } = req.body
 
-  await pool.await(`insert into reviews(creator_username,title,num_of_list_items,list_id,list_images,body)
-values ($!,$2,$3,$4,$5,$6)`, [
+  await pool.query(`insert into reviews(creator_username,title,num_of_list_items,list_id,list_images,body)
+values ($1,$2,$3,$4,$5,$6)`, [
     username,
     title,
     items,
@@ -42,6 +42,7 @@ values ($!,$2,$3,$4,$5,$6)`, [
     images,
     description,
   ])
+  await pool.query(`delete from list_drafts where id = $1`, [list_id])
 
   res.status(200).json({ message: 'List submitted' })
 
