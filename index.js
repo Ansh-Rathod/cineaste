@@ -8,6 +8,7 @@ import adminRoute from './routes/admin/admin.js'
 import favoriteRoute from './routes/favorites/favorite.js'
 import watchedRoute from './routes/watched/watched.js'
 import watchlistRoute from './routes/watchlist/watchlist.js'
+import listsRoute from './routes/add_to_lists/add_to_list.js'
 import genreRoute from './routes/genre/genre.js'
 import gifRoute from './routes/gifs/gifs.js'
 import mediaRoute from './routes/media/upload-media.js'
@@ -54,6 +55,7 @@ app.use('/api/v1/report', reportRoute)
 app.use('/api/v1/favorite', favoriteRoute)
 app.use('/api/v1/watched', watchedRoute)
 app.use('/api/v1/watchlist', watchlistRoute)
+app.use('/api/v1/lists', listsRoute)
 app.use('/api/v1/web', webRoute)
 app.use('/api/v1/genres', genreRoute)
 app.use('/api/v1/notifications', notificationRoute)

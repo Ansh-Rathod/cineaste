@@ -131,3 +131,31 @@ CREATE TABLE gifs(
   created_at timestamptz NOT NULL DEFAULT current_timestamp,
   PRIMARY KEY(id)
 );
+
+create table lists(
+    id uuid NOT NULL DEFAULT uuid_generate_v4(),
+    name text NOT NULL,
+    description text,
+    image text,
+    color text,
+    likes integer NOT NULL DEFAULT 0,
+    replies integer NOT NULL DEFAULT 0,
+    creator_username text NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    PRIMARY KEY(id)
+);
+
+create table likedlist(
+
+);
+
+create table list_items(
+    id uuid NOT NULL DEFAULT uuid_generate_v4(),
+    review_id uuid NOT NULL,
+    movie_id varchar(255) NOT NULL,
+    description text,
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    PRIMARY KEY(id)
+);
+
+

@@ -65,7 +65,7 @@ router.get(
 			FROM reviews 
 			LEFT JOIN users on reviews.creator_username=users.username  
 			WHERE creator_username IN 
-			(SELECT user_id FROM followers WHERE follower_id='${username}')
+			(SELECT user_id FROM followers WHERE follower_id='${username}') and title is null
 			order by reviews.created_at desc offset $1 limit 20;`,
 			[followerOffset]
 		)
@@ -80,7 +80,7 @@ router.get(
 			WHERE creator_username NOT IN 
 			(SELECT user_id FROM followers WHERE follower_id='${username}')
                   and movie is null 
-			and repling_to='{}'
+			and repling_to='{}' and title is null
 			and created_at > current_date - interval '10 days' 
 			order by reviews.likes desc offset $1 limit 10;`,
 			[nonFollowerOffset]
