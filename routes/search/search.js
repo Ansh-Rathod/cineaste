@@ -39,7 +39,8 @@ router.get(
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
 			     ) as isReviewd
-			from movies where (lower(searchtext) like '%${query}%'  or lower(title) like '%${query}%') order by popularity desc offset $1 limit 20;`,
+			from movies where (lower(searchtext) like '%${query}%'  or lower(title) like '%${query}%') 
+			order by popularity desc offset $1 limit 20;`,
 				[offset]
 			)
 			res.status(200).send({ success: true, results: rows })
@@ -52,7 +53,8 @@ router.get(
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
 			     ) as isReviewd
-			from movies where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') and release like '${year}%' order by popularity desc offset $1 limit 20;`,
+			from movies where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
+			 and release like '${year}%' order by popularity desc offset $1 limit 20;`,
 				[offset]
 			)
 			res.status(200).send({ success: true, results: rows })
@@ -65,7 +67,8 @@ router.get(
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
 			     ) as isReviewd
-			from movies where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') and language='${lang}' order by popularity desc offset $1 limit 20;`,
+			from movies where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') 
+			and language='${lang}' order by popularity desc offset $1 limit 20;`,
 				[offset]
 			)
 			res.status(200).send({ success: true, results: rows })
@@ -77,7 +80,8 @@ router.get(
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
 			     ) as isReviewd
-			from movies where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') and release like '${year}%' and language='${lang}' order by popularity desc offset $1 limit 20;`,
+			from movies where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') 
+			and release like '${year}%' and language='${lang}' order by popularity desc offset $1 limit 20;`,
 				[offset]
 			)
 			res.status(200).send({ success: true, results: rows })
@@ -113,7 +117,8 @@ router.get(
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
 			     ) as isReviewd
-			from tvshows where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') and release like '${year}%' order by popularity desc offset $1 limit 20;`,
+			from tvshows where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') 
+			and release like '${year}%' order by popularity desc offset $1 limit 20;`,
 				[offset]
 			)
 			res.status(200).send({ success: true, results: rows })
@@ -126,7 +131,8 @@ router.get(
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
 			     ) as isReviewd
-			from tvshows where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') and language='${lang}' order by popularity desc offset $1 limit 20;`,
+			from tvshows where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
+			 and language='${lang}' order by popularity desc offset $1 limit 20;`,
 				[offset]
 			)
 			res.status(200).send({ success: true, results: rows })
@@ -138,7 +144,8 @@ router.get(
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
 			     ) as isReviewd
-			from tvshows where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') and release like '${year}%' and language='${lang}' order by popularity desc offset $1 limit 20;`,
+			from tvshows where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') 
+			and release like '${year}%' and language='${lang}' order by popularity desc offset $1 limit 20;`,
 				[offset]
 			)
 			res.status(200).send({ success: true, results: rows })
@@ -162,7 +169,8 @@ router.get(
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = anime.id and reviews.movie->>'type'=anime.type)
 			     ) as isReviewd
-			from anime where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') and release like '${year}%' order by popularity desc offset $1 limit 20;`,
+			from anime where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') 
+			and release like '${year}%' order by popularity desc offset $1 limit 20;`,
 				[offset]
 			)
 			res.status(200).send({ success: true, results: rows })
