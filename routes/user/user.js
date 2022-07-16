@@ -151,6 +151,8 @@ router.get(
 		const { rows } = await pool.query(
 			`
 		select users.id,users.username,users.display_name,users.avatar_url,
+			critic,
+
 		(exists  (select 1 from followers
 		where followers.user_id=users.username
 		and followers.follower_id = '${username}')
@@ -172,6 +174,7 @@ router.get(
 		const { rows } = await pool.query(
 			`
 			select users.id,users.username,users.display_name,users.avatar_url,
+			critic,
 						(exists  (select 1 from followers
 							where followers.user_id=users.username
 					    and followers.follower_id = '${username}')
@@ -193,6 +196,7 @@ router.get(
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
 			`select username,display_name,avatar_url,
+			critic,
 			(exists  (select 1 from followers
 			where followers.user_id=users.username
 			and followers.follower_id = '${username}')) as isfollow
@@ -219,6 +223,21 @@ router.post(
 			where username=$5
 			`,
 			[name, profile, backdrop, bio, username]
+		)
+		res.status(200).json({ success: true })
+	})
+)
+
+router.post(
+	'/update/bg',
+	asyncHandler(async (req, res, next) => {
+		const { username, backdrop } = req.body
+		await pool.query(
+			`update users set
+			backdrop_url=$1
+			where username=$2
+			`,
+			[backdrop, username]
 		)
 		res.status(200).json({ success: true })
 	})

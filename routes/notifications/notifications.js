@@ -37,7 +37,9 @@ router.get(
 		const offset = (page ?? 0) * 20
 
 		const { rows } = await pool.query(
-			`select notifications.id,owner_username,owner_review_body,owner_review_id,reactor_username,rector_body,rector_reply_id,message_type,active,created_at,display_name,avatar_url from notifications left join users on
+			`select notifications.id,owner_username,owner_review_body,owner_review_id,reactor_username,rector_body,rector_reply_id,message_type,active,created_at,display_name,avatar_url
+		,	users.critic
+			 from notifications left join users on
                   notifications.reactor_username = users.username where owner_username = '${username}' order by created_at desc offset $1 limit 20;`,
 			[offset]
 		)
@@ -57,6 +59,7 @@ router.get(
 					active: row.active,
 					display_name: row.display_name,
 					avatar_url: row.avatar_url,
+					critic: row.critic,
 					created_at: formateTime(row.created_at),
 				}
 			}),

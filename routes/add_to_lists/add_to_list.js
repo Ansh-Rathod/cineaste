@@ -48,8 +48,8 @@ router.post('/description', asyncHandler(async (req, res, next) => {
 }))
 
 router.post('/update/published', asyncHandler(async (req, res, next) => {
-  const { id, description, title, items } = req.body
-  await pool.query(`UPDATE list_drafts SET description = $1,title=$3,num_of_list_items=$4 WHERE id = $2`, [description, id, title, items])
+  const { id, description, title } = req.body
+  await pool.query(`UPDATE reviews SET body = $1,title=$3 WHERE list_id = $2`, [description, id, title])
   res.status(200).json({ message: 'List updated' })
 }))
 
@@ -59,15 +59,13 @@ router.post('/submit', asyncHandler(async (req, res, next) => {
     username,
     title,
     description,
-    items,
     images,
   } = req.body
 
-  await pool.query(`insert into reviews(creator_username,title,num_of_list_items,list_id,list_images,body)
-values ($1,$2,$3,$4,$5,$6)`, [
+  await pool.query(`insert into reviews(creator_username,title,list_id,list_images,body)
+values ($1,$2,$3,$4,$5)`, [
     username,
     title,
-    items,
     list_id,
     images,
     description,

@@ -269,6 +269,7 @@ router.get(
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
 			`select id,username,avatar_url,display_name,
+			critic,
 			(exists  (select 1 from followers
 				where followers.user_id=users.username and followers.follower_id ='${username}')
 			     ) as isfollow

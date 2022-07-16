@@ -45,6 +45,7 @@ function formatResult(rows, isFollow) {
 			isReported: row.reported,
 			thought_on: row.thought_on,
 			isFollow: isFollow,
+			critic: row.critic,
 			created_at: formateTime(row.created_at),
 		}
 	})
@@ -72,6 +73,7 @@ function formatResultV2(rows, isFollow) {
 			list_id: row.list_id,
 			list_images: row.list_images,
 			count: row.count,
+			critic: row.critic,
 			created_at: formateTime(row.created_at),
 		}
 	})
@@ -145,6 +147,7 @@ router.get(
 		const followers = await pool.query(
 			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
 			title,list_images,list_id,
+			users.critic,
 			(select count(*) from list_items where review_id=reviews.list_id),
 			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
 			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}'))
@@ -160,6 +163,7 @@ router.get(
 		const notFollowers = await pool.query(
 			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
 			title,list_images,list_id,
+			users.critic,
 			(select count(*) from list_items where review_id=reviews.list_id),
 			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
 			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}'))
@@ -192,6 +196,30 @@ router.get(
 				...formatResultV2(notFollowers.rows, false),
 			].sort(compare),
 		})
+	})
+)
+
+router.get(
+	'/previous/reply/:id',
+	asyncHandler(async (req, res, next) => {
+		const { id } = req.params
+		const { username } = req.query
+		const { rows } = await pool.query(
+			`select reviews.id,creator_username,display_name,avatar_url,media,
+			movie,
+			title,list_images,list_id,
+			users.critic,
+			(select count(*) from list_items where review_id=reviews.list_id),
+			thought_on,likes,replies,body,reviews.created_at,repling_to,mentions,
+			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
+			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}')) reported
+			from reviews 
+			left join users on reviews.creator_username =users.username where
+			reviews.id=(select review_id from replies where reply_id='${id}' );
+			`
+		)
+
+		res.status(200).send({ success: true, results: formatResultV2(rows) })
 	})
 )
 

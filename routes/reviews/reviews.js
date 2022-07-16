@@ -47,6 +47,7 @@ function formatResult(rows) {
 			isLiked: row.liked,
 			isReported: row.reported,
 			thought_on: row.thought_on,
+			critic: row.critic,
 			created_at: formateTime(row.created_at),
 		}
 	})
@@ -131,7 +132,20 @@ router.post(
 				req.body.thought_on,
 			]
 		)
-		console.log('calling')
+
+		if (req.body.movie !== null) {
+			console.log('calling watched')
+			await pool.query(
+				`insert into watchlist(
+					username,
+					media_id,
+					media_type,
+					media_title,
+					media_poster) values($1, $2, $3, $4, $5);`,
+
+				[req.body.username, req.body.movie.id, req.body.movie.type, req.body.movie.title, req.body.movie.poster])
+
+		}
 
 		if (rows[0].mentions.length > 0) {
 			console.log('calling2')
@@ -187,9 +201,7 @@ router.get(
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
 			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
-			(exists  (select 1 from liked
-				where liked.user_id='${username}' and liked.review_id =reviews.id)
-			     ) as liked,
+			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
 			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}'))
 			reported
 			FROM reviews 
@@ -274,6 +286,7 @@ router.get(
 			thought_on,(exists  (select 1 from liked
 				where liked.user_id='${username}' and liked.review_id =reviews.id)
 			     ) as liked,
+			users.critic,
 			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
 			reported
 			FROM reviews 
@@ -297,6 +310,7 @@ router.get(
 			thought_on,(exists  (select 1 from liked
 				where liked.user_id='${username}' and liked.review_id =reviews.id)
 			     ) as liked,
+			users.critic,
 			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
 			reported
 			FROM reviews 
@@ -321,6 +335,8 @@ router.get(
 			(exists  (select 1 from liked
 				where liked.user_id='${username}' and liked.review_id =reviews.id)
 			     ) as liked,
+			users.critic,
+
 			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
 			reported
 			from replies left join reviews on replies.reply_id=reviews.id
@@ -348,6 +364,8 @@ router.get(
 			(exists  (select 1 from liked
 				where liked.user_id='${username}' and liked.review_id =reviews.id)
 			     ) as liked,
+			users.critic,
+
 			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
 			reported
 			from replies left join reviews on replies.reply_id=reviews.id
@@ -374,6 +392,8 @@ router.get(
 		(exists  (select 1 from liked
 			where liked.user_id='${username}' and liked.review_id =reviews.id)
 		     ) as liked,
+			users.critic,
+
 		     (exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
 		     reported
 		FROM reviews 
@@ -400,6 +420,7 @@ router.get(
 		(exists  (select 1 from liked
 			where liked.user_id='${username}' and liked.review_id =reviews.id)
 		     ) as liked,
+			users.critic,
 		     (exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
 		     reported
 		FROM reviews 
@@ -432,6 +453,7 @@ router.get(
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
 			`select display_name,avatar_url,username,
+			users.critic,
 		(exists  (select 1 from followers where followers.user_id=users.username
 		and followers.follower_id = '${username}')) as isfollow
 		from liked left join users on liked.user_id=users.username
@@ -455,6 +477,7 @@ router.get(
 			`select reviews.id,creator_username,display_name,avatar_url,media,
 			movie,
 			thought_on,likes,replies,body,reviews.created_at,repling_to,mentions,
+			users.critic,
 			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
 			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}')) reported
 			from reviews 
@@ -476,6 +499,7 @@ router.get(
 			`select reviews.id,creator_username,display_name,avatar_url,media,
 			movie,
 			thought_on,likes,replies,body,reviews.created_at,repling_to,mentions,
+			users.critic,
 			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
 			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}')) reported
 			from reviews 
