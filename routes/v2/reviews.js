@@ -85,7 +85,7 @@ router.get(
 		const { username, page } = req.query
 
 		let followerOffset = (page ?? 0) * 20
-		let nonFollowerOffset = (page ?? 0) * 10
+		let nonFollowerOffset = (page ?? 0) * 15
 
 		const followers = await pool.query(
 			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
@@ -111,7 +111,7 @@ router.get(
 			(SELECT user_id FROM followers WHERE follower_id='${username}')
       and movie is null and title is null
 			and repling_to='{}' 
-			and created_at > current_date - interval '10 days' 
+			and created_at > current_date - interval '30 days' 
 			order by reviews.likes desc offset $1 limit 10;`,
 			[nonFollowerOffset]
 		)
