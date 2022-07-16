@@ -243,6 +243,22 @@ router.post(
 	})
 )
 
+router.post(
+	'/update/country',
+	asyncHandler(async (req, res, next) => {
+		console.log("calling")
+		const { username, code } = req.body
+		await pool.query(
+			`update users set
+			country=$1
+			where username=$2
+			`,
+			[code, username]
+		)
+		res.status(200).json({ success: true })
+	})
+)
+
 router.put(
 	'/update/token_id/:id',
 	asyncHandler(async (req, res, next) => {

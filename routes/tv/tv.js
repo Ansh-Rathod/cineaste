@@ -160,7 +160,7 @@ router.get(
 					'tv/' +
 					req.params.id +
 					api_key +
-					'&append_to_response=videos,similar,credits,images'
+					'&append_to_response=videos,similar,credits,images,watch/providers'
 				)
 				.then(async (data) => {
 					await pool.query(`delete from tv_info where id = '${req.params.id}';`)
@@ -186,10 +186,11 @@ router.get(
 							production_countries,
 							spoken_languages,
 							week_num,
-							images
+							images,
+							providers
 							)
 							values
-						($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21) returning *,
+						($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22) returning *,
 						(exists  (select 1 from favorites
 							where favorites.username='${username}'
 					    and favorites.media_id = tv_info.id and favorites.media_type='tv')
@@ -279,6 +280,10 @@ router.get(
 									}
 								})
 							},
+							{
+								results: getWatchProvider(data.data['watch/providers'].results)
+
+							}
 						]
 					)
 					res.status(200).json({
@@ -312,5 +317,22 @@ router.get(
 		}
 	})
 )
+
+
+function getWatchProvider(data) {
+	let alldata = []
+	for (let property in data) {
+
+		alldata.push({
+			country: property,
+			logo: data[property].flatrate[0].logo_path,
+			priority: data[property].flatrate[0].display_priority,
+			name: data[property].flatrate[0].provider_name
+		})
+
+	}
+	return alldata
+}
+
 
 export default router
