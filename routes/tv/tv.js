@@ -322,14 +322,48 @@ router.get(
 function getWatchProvider(data) {
 	let alldata = []
 	for (let property in data) {
+		var object;
 
-		alldata.push({
-			country: property,
-			logo: data[property].flatrate[0].logo_path,
-			priority: data[property].flatrate[0].display_priority,
-			name: data[property].flatrate[0].provider_name
-		})
+		if (data[property].hasOwnProperty('flatrate')) {
+			object = {
+				type: 'stream',
+				country: property,
+				logo:
+					data[property].flatrate[0].logo_path,
+				priority:
+					data[property].flatrate[0].display_priority,
+				name:
 
+					data[property].flatrate[0].provider_name,
+			}
+
+		} else if (data[property].hasOwnProperty('buy')) {
+			object = {
+				type: 'buy',
+
+				country: property,
+				logo:
+					data[property].buy[0].logo_path,
+				priority:
+					data[property].buy[0].display_priority,
+				name:
+					data[property].buy[0].provider_name,
+			}
+		} else if (data[property].hasOwnProperty('rent')) {
+			object = {
+				type: 'rent',
+				country: property,
+				logo:
+					data[property].rent[0].logo_path,
+				priority:
+					data[property].rent[0].display_priority,
+				name:
+					data[property].rent[0].provider_name,
+			}
+		}
+		if (object !== undefined) {
+			alldata.push(object)
+		}
 	}
 	return alldata
 }

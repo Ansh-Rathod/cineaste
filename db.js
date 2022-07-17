@@ -10,14 +10,14 @@ const Pool = pg.Pool
 // 	},
 // })
 
-// // digital ocean database
-// const pool = new Pool({
-//   database: 'postgres',
-//   host: 'localhost',
-//   port: 5432,
-//   user: 'postgres',
-//   password: 'ansh00',
-// })
+// digital ocean database
+const pool = new Pool({
+  database: 'postgres',
+  host: 'localhost',
+  port: 5432,
+  user: 'postgres',
+  password: 'ansh00',
+})
 
 // // local databale
 // const pool = new Pool({
@@ -28,13 +28,13 @@ const Pool = pg.Pool
 //   password: 'ansh00',
 // })
 
-// direct database
-const pool = new Pool({
-  database: 'postgres',
-  host: '143.110.247.159',
-  port: 5432,
-  user: 'postgres',
-  password: 'ansh00',
-})
+// // direct database
+// const pool = new Pool({
+//   database: 'postgres',
+//   host: '143.110.247.159',
+//   port: 5432,
+//   user: 'postgres',
+//   password: 'ansh00',
+// })
 
 export default pool
