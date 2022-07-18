@@ -242,19 +242,33 @@ router.put(
 		const { rows } = await pool.query(
 			`select token_id,
 			(select display_name from users where username=$2) as display_name,
-			(select creator_username from reviews where id=$1) as name
+			(select avatar_url from users where username=$2) as avatar_url,
+			(select body from reviews where id=$1) as body,
+			(select title from reviews where id=$1) as title
 			from users where username = (select creator_username from reviews where id=$1);`,
 			[id, username]
 		)
 		if (username !== rows[0].name) {
-			console.log('calling')
-			if (rows[0].token_id !== 'null') {
-				await sendNotification(
-					rows[0].token_id,
-					'@' + username,
-					rows[0].display_name + ' liked your thought.',
-					''
-				)
+
+			if (rows[0].title !== null) {
+				if (rows[0].token_id !== 'null') {
+					await sendNotification(
+						rows[0].token_id,
+						rows[0].display_name + ' liked your list.',
+						'@' + username + ' ' + rows[0].title,
+						rows[0].avatar_url
+					)
+				}
+			} else {
+				console.log('calling')
+				if (rows[0].token_id !== 'null') {
+					await sendNotification(
+						rows[0].token_id,
+						rows[0].display_name + ' liked your thought.',
+						'@' + username + ' ' + rows[0].body,
+						rows[0].avatar_url
+					)
+				}
 			}
 		}
 
