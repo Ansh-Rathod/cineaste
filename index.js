@@ -22,6 +22,7 @@ import trendingRoute from './routes/trending/trending.js'
 import tvRoute from './routes/tv/tv.js'
 import userRoute from './routes/user/user.js'
 import vReviews from './routes/v2/reviews.js'
+import vMovies from './routes/v2/movies.js'
 import webRoute from './routes/web/web.js'
 import scaper from './scraper.js'
 //
@@ -44,6 +45,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/user', userRoute)
 app.use('/api/v1/movies', moviesRoute)
+app.use('/api/v2/movies', vMovies)
 app.use('/api/v1/tv', tvRoute)
 app.use('/api/v1/search', searchRoute)
 app.use('/api/v1/reviews', reviewRoute)

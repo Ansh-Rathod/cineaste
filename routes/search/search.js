@@ -16,7 +16,7 @@ router.get(
 		var a = moment.tz(new Date(), 'America/Los_Angeles').format('YYYY-MM-DD')
 
 		const { rows } = await pool.query(
-			`select id,title,release,rating,poster,type,
+			`select id,title,release,rating,poster,type,backdrop,
 			(select rating from apprating where id = trending.id and type=trending.type) as rating_by_app
 			from trending where date='${a}' order by popularity desc limit 20;`
 		)

@@ -317,6 +317,16 @@ router.put(
 		res.status(200).json({ success: true, results: rows })
 	})
 )
+router.get(
+	'/get/languages',
+	asyncHandler(async (req, res, next) => {
+		const { username } = req.query
+		const { rows } = await pool.query(`select languages from users where username = $1`,
+			[username])
+
+		res.status(200).json({ success: true, results: rows[0].languages })
+	})
+)
 
 router.get(
 	'/languages/get/:username',
