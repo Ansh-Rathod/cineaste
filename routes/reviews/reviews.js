@@ -136,7 +136,7 @@ router.post(
 		if (req.body.movie !== null) {
 			console.log('calling watched')
 			await pool.query(
-				`insert into watchlist(
+				`insert into watched(
 					username,
 					media_id,
 					media_type,
