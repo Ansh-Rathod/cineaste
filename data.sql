@@ -143,3 +143,15 @@ CREATE TABLE watchlist(
   created       timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+
+create table trailers(
+  id            uuid PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+  url text NOT NULL,
+  code text NOT NULL,
+  title text NOT NULL,
+  media_id      varchar(255) NOT NULL,
+  media_type    text NOT NULL,
+  media_title   varchar(255) NOT NULL,
+  media_poster  text NOT NULL,
+  created       timestamptz NOT NULL DEFAULT current_timestamp
+)

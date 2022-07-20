@@ -1,6 +1,7 @@
 //
 // imports
 import dotenv from 'dotenv'
+import cors from 'cors'
 import express from 'express'
 import data from './data.js'
 import errorHandler from './middlewares/error-handler.js'
@@ -8,6 +9,7 @@ import adminRoute from './routes/admin/admin.js'
 import favoriteRoute from './routes/favorites/favorite.js'
 import watchedRoute from './routes/watched/watched.js'
 import watchlistRoute from './routes/watchlist/watchlist.js'
+import trailersRoute from './routes/trailers/trailers.js'
 import listsRoute from './routes/add_to_lists/add_to_list.js'
 import genreRoute from './routes/genre/genre.js'
 import gifRoute from './routes/gifs/gifs.js'
@@ -34,6 +36,7 @@ dotenv.config({ path: '.env' })
 const app = express()
 const PORT = process.env.PORT || 4444
 
+app.use(cors())
 // set up express app to handle data parsing
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
@@ -57,6 +60,7 @@ app.use('/api/v1/report', reportRoute)
 app.use('/api/v1/favorite', favoriteRoute)
 app.use('/api/v1/watched', watchedRoute)
 app.use('/api/v1/watchlist', watchlistRoute)
+app.use('/api/v1/trailers', trailersRoute)
 app.use('/api/v1/lists', listsRoute)
 app.use('/api/v1/web', webRoute)
 app.use('/api/v1/genres', genreRoute)
