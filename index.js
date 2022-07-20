@@ -35,7 +35,6 @@ dotenv.config({ path: '.env' })
 const app = express()
 const PORT = process.env.PORT || 4444
 
-app.use(cors())
 // set up express app to handle data parsing
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
