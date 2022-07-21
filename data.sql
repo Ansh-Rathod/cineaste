@@ -155,3 +155,11 @@ create table trailers(
   media_poster  text NOT NULL,
   created       timestamptz NOT NULL DEFAULT current_timestamp
 )
+
+
+create table platforms_movies(
+  id            uuid PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+  platform      text NOT NULL,
+  media_id      varchar(255),
+  created       timestamptz NOT NULL DEFAULT current_timestamp
+);
