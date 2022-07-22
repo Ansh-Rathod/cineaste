@@ -265,7 +265,7 @@ router.put(
 				if (rows[0].token_id !== 'null') {
 					await sendNotification(
 						rows[0].token_id,
-						rows[0].display_name + ' liked your thought.',
+						rows[0].display_name + ' liked your review/thought.',
 						'@' + username + ' ' + rows[0].body,
 						rows[0].avatar_url
 					)
