@@ -184,4 +184,50 @@ router.get(
 	})
 )
 
+
+router.get(
+	'/platform/:id',
+	asyncHandler(async (req, res, next) => {
+		const { id } = req.params
+		const { rows } = await pool.query(
+			`(select platforms_movies.created,movies.id,movies.title,movies.rating,movies.release,movies.poster,media_type as type from platforms_movies
+        left join movies on platforms_movies.media_id=movies.id where media_type='movie' and platforms_movies.platform=$1 order by platforms_movies.created desc limit 10)
+        union all
+        (select platforms_movies.created,tvshows.id,tvshows.title,tvshows.rating,tvshows.release,tvshows.poster,media_type as type from platforms_movies
+        left join tvshows on platforms_movies.media_id=tvshows.id where media_type='tv' and platforms_movies.platform=$1 order by platforms_movies.created desc limit 10);`,
+			[id]
+		)
+
+		function compare(a, b) {
+			if (a.created < b.created) {
+				return 1
+			}
+			if (a.created > b.created) {
+				return -1
+			}
+			return 0
+		}
+
+		res.status(200).send({
+			success: true,
+			results: rows.sort(compare),
+		})
+	})
+)
+
+router.get(
+	'/trailers',
+	asyncHandler(async (req, res, next) => {
+		const { rows } = await pool.query(
+			`select * from trailers order by created desc limit 20;`,
+		)
+		res.status(200).send({
+			success: true,
+			results: rows,
+		})
+
+	})
+)
+
+
 export default router
