@@ -1,25 +1,12 @@
 import pg from 'pg'
+import dotenv from 'dotenv'
+dotenv.config({ path: '.env' })
 
 const Pool = pg.Pool
 
-// to use ssl database from url
-// const pool = new Pool({
-// 	connectionString: process.env.DATABASE_URL,
-// 	ssl: {
-// 		rejectUnauthorized: false,
-// 	},
-// })
 
-// digital ocean database
-const pool = new Pool({
-  database: 'postgres',
-  host: 'localhost',
-  port: 5432,
-  user: 'postgres',
-  password: 'ansh00',
-})
 
-// // local databale
+// // digital ocean database
 // const pool = new Pool({
 //   database: 'postgres',
 //   host: 'localhost',
@@ -28,13 +15,15 @@ const pool = new Pool({
 //   password: 'ansh00',
 // })
 
-// // direct database
-// const pool = new Pool({
-//   database: 'postgres',
-//   host: '143.110.247.159',
-//   port: 5432,
-//   user: 'postgres',
-//   password: 'ansh00',
-// })
+
+
+// direct database
+const pool = new Pool({
+  database: process.env.SERVER_DB_NAME,
+  host: process.env.SERVER_HOST,
+  port: process.env.SERVER_PORT,
+  user: process.env.SERVER_USER_NAME,
+  password: process.env.SERVER_PASS,
+})
 
 export default pool

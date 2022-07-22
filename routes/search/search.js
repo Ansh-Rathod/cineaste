@@ -13,10 +13,16 @@ moment().tz('America/Los_Angeles').format()
 router.get(
 	'/trending',
 	asyncHandler(async (req, res, next) => {
+
+		const { username } = req.query
 		var a = moment.tz(new Date(), 'America/Los_Angeles').format('YYYY-MM-DD')
 
 		const { rows } = await pool.query(
-			`select id,title,release,rating,poster,type,backdrop,
+			`select id,title,release,rating,poster,type,
+			(exists  (select 1 from watchlist
+							where watchlist.username='${username}'
+							and watchlist.media_id = trending.id and watchlist.media_type=trending.type)
+							) as iswatchlisted,
 			(select rating from apprating where id = trending.id and type=trending.type) as rating_by_app
 			from trending where date='${a}' order by popularity desc limit 20;`
 		)

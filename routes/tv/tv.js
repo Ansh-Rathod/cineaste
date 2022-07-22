@@ -13,9 +13,14 @@ const api_key = '?api_key=b6e66a75ceca7996c5772ddd0656dd1b'
 router.get(
 	'/trending',
 	asyncHandler(async (req, res, next) => {
+		const { username } = req.query
 		var a = moment.tz(new Date(), 'America/Los_Angeles').format('YYYY-MM-DD')
 		const { rows } = await pool.query(
-			`select id,title,release,rating,poster,language,backdrop,overview,genres,type,
+			`select id,title,release,rating,poster,type,
+							(exists  (select 1 from watchlist
+							where watchlist.username='${username}'
+							and watchlist.media_id = trending.id and watchlist.media_type=trending.type)
+							) as iswatchlisted,
 			(select rating from apprating where id = trending.id and type='tv') as rating_by_app
 			from trending where date='${a}' and type='tv'`
 		)
@@ -24,9 +29,11 @@ router.get(
 				.get(baseUrl + 'trending/tv/day' + api_key + '&page=1')
 				.then(async (data) => {
 					await pool.query(`delete from trending where type='tv';`)
+
+					let results = []
 					for (let index = 0; index < data.data.results.length; index++) {
 						const movie = data.data.results[index]
-						await pool.query(
+						const new_rows = await pool.query(
 							`insert into trending 
 						(id,
 						 title,
@@ -41,7 +48,15 @@ router.get(
 						 type,
 						 popularity
 						 )
-             values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);`,
+             values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+							returning *,
+						 (exists  (select 1 from watchlist
+							where watchlist.username='${username}'
+							and watchlist.media_id = trending.id and watchlist.media_type=trending.type)
+							) as iswatchlisted,
+							(select rating from apprating where id = trending.id and type='tv') as rating_by_app
+							;
+						 `,
 							[
 								movie.id,
 								movie.name,
@@ -57,22 +72,20 @@ router.get(
 								movie.popularity,
 							]
 						)
+						results.push(new_rows.rows[0])
 					}
 					res.status(200).json({
 						success: true,
-						results: data.data.results.map((movie) => {
+						results: results.map((movie) => {
 							return {
 								id: movie.id,
 								title: movie.title,
-								release: movie.release_date,
-								rating: movie.vote_average,
-								poster: movie.poster_path,
-								language: movie.original_language,
-								backdrop: movie.backdrop_path,
-								overview: movie.overview,
-								genre: movie.genre_ids,
+								release: movie.release,
+								rating: movie.rating,
+								poster: movie.poster,
 								type: 'tv',
-								adult: false,
+								iswatchlisted: movie.iswatchlisted,
+								rating_by_app: movie.rating_by_app
 							}
 						}),
 					})
