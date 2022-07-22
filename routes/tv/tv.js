@@ -15,7 +15,7 @@ router.get(
 	asyncHandler(async (req, res, next) => {
 		var a = moment.tz(new Date(), 'America/Los_Angeles').format('YYYY-MM-DD')
 		const { rows } = await pool.query(
-			`select id,title,release,rating,poster,language,backdrop,overview,genres,
+			`select id,title,release,rating,poster,language,backdrop,overview,genres,type,
 			(select rating from apprating where id = trending.id and type='tv') as rating_by_app
 			from trending where date='${a}' and type='tv'`
 		)
@@ -71,6 +71,7 @@ router.get(
 								backdrop: movie.backdrop_path,
 								overview: movie.overview,
 								genre: movie.genre_ids,
+								type: 'tv',
 								adult: false,
 							}
 						}),

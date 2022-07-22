@@ -71,6 +71,7 @@ router.get(
 								overview: movie.overview,
 								genre: movie.genre_ids,
 								adult: movie.adult,
+								type: 'movie'
 							}
 						}),
 					})
