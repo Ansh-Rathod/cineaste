@@ -241,7 +241,7 @@ router.get(
 			`select poster,title,id,rating,release,'movie' as type,
 			(select rating from apprating where id = movies.id and type='movie') as rating_by_app	
 			from movies where  rating>8 and poster is not null order by random() limit 20;`,
-			[username]
+			// [username]
 		)
 
 		res.status(200).send({
@@ -259,7 +259,7 @@ router.get(
 			`select poster,title,id,rating,release,'tv' as type,
 			(select rating from apprating where id = tvshows.id and type='tv') as rating_by_app	
 			from tvshows where  rating>8 and poster is not null order by random() limit 20;`,
-			[username]
+			// [username]
 		)
 
 		res.status(200).send({
