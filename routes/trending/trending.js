@@ -233,5 +233,44 @@ router.get(
 	})
 )
 
+router.get(
+	'/top_rated/movies',
+	asyncHandler(async (req, res, next) => {
+
+		const { page } = req.query
+		const offset = (page ?? 0) * 20
+		const { rows } = await pool.query(
+			`select poster,title,id,rating,release,'movie' as type,
+			(select rating from apprating where id = movies.id and type='movie') as rating_by_app	
+			from movies where rating>8 order by random() offset $1 limit 20;`,
+			[offset]
+		)
+
+		res.status(200).send({
+			success: true,
+			results: rows,
+		})
+	})
+)
+router.get(
+	'/top_rated/tvshows',
+	asyncHandler(async (req, res, next) => {
+
+		const { page } = req.query
+		const offset = (page ?? 0) * 20
+		const { rows } = await pool.query(
+			`select poster,title,id,rating,release,'tv' as type,
+			(select rating from apprating where id = tvshows.id and type='tv') as rating_by_app	
+			from tvshows where rating>8 order by random() offset $1 limit 20;`,
+			[offset]
+		)
+
+		res.status(200).send({
+			success: true,
+			results: rows,
+		})
+	})
+)
+
 
 export default router
