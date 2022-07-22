@@ -275,8 +275,8 @@ router.get(
 
 		const { rows } = await pool.query(
 			`select poster,title,id,rating,release, type,
-			(select rating from apprating where id = anime.id and type=type) as rating_by_app	
-			from anime where  rating>7 and poster is not null order by random() limit 20;`,
+			(select rating from apprating where id = anime.id and type=anime.type) as rating_by_app	
+			from anime where rating > 7 and poster is not null order by random() limit 20;`,
 			[username]
 		)
 
