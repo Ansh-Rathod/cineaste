@@ -221,5 +221,28 @@ router.get(
 		res.status(200).send({ success: true, results: formatResultV2(rows) })
 	})
 )
+router.get(
+	'/user/:id',
+	asyncHandler(async (req, res, next) => {
+		const { page, username } = req.query
+		const { id } = req.params
+
+		const offset = (page ?? 0) * 20
+		const { rows } = await pool.query(
+			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,
+			thought_on,(exists  (select 1 from liked
+				where liked.user_id='${username}' and liked.review_id =reviews.id)
+			     ) as liked,
+			users.critic,
+			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}'))
+			reported
+			FROM reviews 
+			LEFT JOIN users on reviews.creator_username=users.username  
+			 WHERE creator_username ='${id}' and repling_to='{}' and list_id is null order by reviews.created_at desc offset $1 limit 20;`,
+			[offset]
+		)
+		res.status(200).json({ success: true, results: formatResult(rows) })
+	})
+)
 
 export default router

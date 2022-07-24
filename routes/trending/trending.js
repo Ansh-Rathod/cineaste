@@ -192,23 +192,30 @@ router.get(
 
 		const { username } = req.query
 		const { rows } = await pool.query(
-			`(select platforms_movies.created,movies.id,movies.title,movies.rating,movies.release,movies.poster,media_type as type,
-			(select rating from apprating where id = movies.id and type=media_type) as rating_by_app
-			 ,(exists  (select 1 from watchlist
-							where watchlist.username='${username}'
-							and watchlist.media_id = platforms_movies.media_id and watchlist.media_type=platforms_movies.media_type)
-							) as iswatchlisted
-			 from platforms_movies
-        left join movies on platforms_movies.media_id=movies.id where media_type='movie' and platforms_movies.platform=$1 order by platforms_movies.created desc limit 10)
-        union all
-        (select platforms_movies.created,tvshows.id,tvshows.title,tvshows.rating,tvshows.release,tvshows.poster,media_type as type ,
-				(select rating from apprating where id = tvshows.id and type=media_type) as rating_by_app
-				,(exists  (select 1 from watchlist
+			`	select platforms_movies.media_id as id,
+				platforms_movies.media_type as type,
+				movies.rating,
+				movies.poster,
+				movies.title,
+				movies.release,
+				platforms_movies.created,
+				(exists  (select 1 from watchlist
 				where watchlist.username='${username}'
-				and watchlist.media_id = platforms_movies.media_id and watchlist.media_type=platforms_movies.media_type)
-				) as iswatchlisted
-				from platforms_movies
-        left join tvshows on platforms_movies.media_id=tvshows.id where media_type='tv' and platforms_movies.platform=$1 order by platforms_movies.created desc limit 10);`,
+				and media_id = platforms_movies.media_id
+				and media_type=platforms_movies.media_type)) as iswatchlisted,
+				(exists  (select 1 from watched
+				where watched.username='${username}'
+				and watched.media_id = platforms_movies.media_id
+				and watched.media_type=platforms_movies.media_type)) as iswatched,
+				(exists  (select 1 from favorites
+				where favorites.username='${username}'
+				and favorites.media_id = platforms_movies.media_id
+				and favorites.media_type=platforms_movies.media_type)) as isfavorited,
+				(exists  (select 1 from reviews where reviews.creator_username='${username}'
+				and reviews.movie->>'id' = platforms_movies.media_id and reviews.movie->>'type'=platforms_movies.media_type)) as isReviewd,
+				(select rating from apprating where apprating.id = platforms_movies.media_id and apprating.type=platforms_movies.media_type) as rating_by_app
+				from platforms_movies left join movies on platforms_movies.media_id = movies.id
+				where platforms_movies.platform = $1;`,
 			[id]
 		)
 
@@ -249,11 +256,21 @@ router.get(
 		const { username } = req.query
 		const { rows } = await pool.query(
 			`select poster,title,id,rating,release,'movie' as type,
-			(select rating from apprating where id = movies.id and type='movie') as rating_by_app	
-			,(exists  (select 1 from watchlist
-							where watchlist.username='${username}'
-							and watchlist.media_id = movies.id and watchlist.media_type='movie')
-							) as iswatchlisted
+			  (exists  (select 1 from watchlist
+        where username='${username}'
+        and media_id = movies.id 
+        and media_type='movie')) as iswatchlisted,
+        (exists  (select 1 from watched
+        where watched.username='${username}'
+        and watched.media_id = movies.id 
+        and watched.media_type='movie')) as iswatched,
+        (exists  (select 1 from favorites
+        where favorites.username='${username}'
+        and favorites.media_id = movies.id 
+        and favorites.media_type='movie')) as isfavorited,
+        (exists  (select 1 from reviews where reviews.creator_username='${username}'
+        and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')) as isReviewd,
+			(select rating from apprating where id = movies.id and type='movie') as rating_by_app
 			from movies where  language in (select languages[1] from users where username=$1) and rating>8 and poster is not null order by random() limit 20;`,
 			[username]
 		)
@@ -271,11 +288,21 @@ router.get(
 
 		const { rows } = await pool.query(
 			`select poster,title,id,rating,release,'tv' as type,
-			(select rating from apprating where id = tvshows.id and type='tv') as rating_by_app	
-			,(exists  (select 1 from watchlist
-							where watchlist.username='${username}'
-							and watchlist.media_id = tvshows.id and watchlist.media_type='tv')
-							) as iswatchlisted
+		    (exists  (select 1 from watchlist
+        where username='${username}'
+        and media_id = tvshows.id 
+        and media_type='tv')) as iswatchlisted,
+        (exists  (select 1 from watched
+        where watched.username='${username}'
+        and watched.media_id = tvshows.id 
+        and watched.media_type='tv')) as iswatched,
+        (exists  (select 1 from favorites
+        where favorites.username='${username}'
+        and favorites.media_id = tvshows.id 
+        and favorites.media_type='tv')) as isfavorited,
+        (exists  (select 1 from reviews where reviews.creator_username='${username}'
+        and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')) as isReviewd,
+			(select rating from apprating where id = tvshows.id and type='tv') as rating_by_app
 			from tvshows where language in (select languages[1] from users where username=$1) and rating>8 and poster is not null order by random() limit 20;`,
 			[username]
 		)
@@ -293,11 +320,21 @@ router.get(
 
 		const { rows } = await pool.query(
 			`select poster,title,id,rating,release, type,
-			(select rating from apprating where id = anime.id and type=anime.type) as rating_by_app	
-				,(exists  (select 1 from watchlist
-							where watchlist.username='${username}'
-							and watchlist.media_id = anime.id and watchlist.media_type=anime.type)
-							) as iswatchlisted
+		    (exists  (select 1 from watchlist
+        where username='${username}'
+        and media_id = anime.id 
+        and media_type=anime.type)) as iswatchlisted,
+        (exists  (select 1 from watched
+        where watched.username='${username}'
+        and watched.media_id = anime.id 
+        and watched.media_type=anime.type)) as iswatched,
+        (exists  (select 1 from favorites
+        where favorites.username='${username}'
+        and favorites.media_id = anime.id 
+        and favorites.media_type=anime.type)) as isfavorited,
+        (exists  (select 1 from reviews where reviews.creator_username='${username}'
+        and reviews.movie->>'id' = anime.id and reviews.movie->>'type'=anime.type)) as isReviewd,
+			(select rating from apprating where id = anime.id and type=anime.type) as rating_by_app
 			from anime where rating > 7 and poster is not null order by random() limit 20;`,
 		)
 

@@ -17,11 +17,21 @@ router.get(
 		var a = moment.tz(new Date(), 'America/Los_Angeles').format('YYYY-MM-DD')
 		const { rows } = await pool.query(
 			`select id,title,release,rating,poster,type,
-							(exists  (select 1 from watchlist
-							where watchlist.username='${username}'
-							and watchlist.media_id = trending.id and watchlist.media_type=trending.type)
-							) as iswatchlisted,
-			(select rating from apprating where id = trending.id and type='tv') as rating_by_app
+				(exists  (select 1 from watchlist
+				where username='${username}'
+				and media_id = trending.id 
+				and media_type=trending.type)) as iswatchlisted,
+				(exists  (select 1 from watched
+				where watched.username='${username}'
+				and watched.media_id = trending.id 
+				and watched.media_type=trending.type)) as iswatched,
+				(exists  (select 1 from favorites
+				where favorites.username='${username}'
+				and favorites.media_id = trending.id 
+				and favorites.media_type=trending.type)) as isfavorited,
+				(exists  (select 1 from reviews where reviews.creator_username='${username}'
+				and reviews.movie->>'id' = trending.id and reviews.movie->>'type'=trending.type)) as isReviewd,
+				(select rating from apprating where id = trending.id and type=trending.type) as rating_by_app
 			from trending where date='${a}' and type='tv'`
 		)
 		if (rows.length === 0) {
@@ -50,11 +60,21 @@ router.get(
 						 )
              values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
 							returning *,
-						 (exists  (select 1 from watchlist
-							where watchlist.username='${username}'
-							and watchlist.media_id = trending.id and watchlist.media_type=trending.type)
-							) as iswatchlisted,
-							(select rating from apprating where id = trending.id and type='tv') as rating_by_app
+						(exists  (select 1 from watchlist
+						where username='${username}'
+						and media_id = trending.id 
+						and media_type=trending.type)) as iswatchlisted,
+						(exists  (select 1 from watched
+						where watched.username='${username}'
+						and watched.media_id = trending.id 
+						and watched.media_type=trending.type)) as iswatched,
+						(exists  (select 1 from favorites
+						where favorites.username='${username}'
+						and favorites.media_id = trending.id 
+						and favorites.media_type=trending.type)) as isfavorited,
+						(exists  (select 1 from reviews where reviews.creator_username='${username}'
+						and reviews.movie->>'id' = trending.id and reviews.movie->>'type'=trending.type)) as isReviewd,
+						(select rating from apprating where id = trending.id and type=trending.type) as rating_by_app
 							;
 						 `,
 							[
@@ -85,6 +105,9 @@ router.get(
 								poster: movie.poster,
 								type: 'tv',
 								iswatchlisted: movie.iswatchlisted,
+								isfavorited: movie.isfavorited,
+								iswatched: movie.iswatched,
+								isReviewd: movie.isReviewd,
 								rating_by_app: movie.rating_by_app
 							}
 						}),

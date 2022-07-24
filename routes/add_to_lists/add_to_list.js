@@ -117,28 +117,31 @@ router.get('/items/:id', asyncHandler(async (req, res, next) => {
   const { id } = req.params
   const { username } = req.query
   const { rows } = await pool.query(`select *,
-  (exists  (select 1 from watchlist
-				where watchlist.username='${username}'
-		    and watchlist.media_id = list_items.movie_id and watchlist.media_type=list_items.movie_type)
-			     ) as iswatchlisted
+    (case when list_items.media_type ='movie' then (select release from movies where id=list_items.media_id)
+      when list_items.media_type='tv' then (select release from tvshows where id=list_items.media_id)
+      else 'N/A' end) as media_release,
+    (case when list_items.media_type ='movie' then (select rating from movies where id=list_items.media_id)
+      when list_items.media_type='tv' then (select rating from tvshows where id=list_items.media_id)
+      else 0.0 end) as media_rating,
+			(exists  (select 1 from watchlist
+			where watchlist.username='${username}'
+		  and watchlist.media_id = list_items.media_id 
+      and watchlist.media_type=list_items.media_type)) as iswatchlisted,
+      (exists  (select 1 from watched
+			where watched.username='${username}'
+		  and watched.media_id = list_items.media_id 
+      and watched.media_type=list_items.media_type)) as iswatched,
+      (exists  (select 1 from favorites
+			where favorites.username='${username}'
+		  and favorites.media_id = list_items.media_id
+      and favorites.media_type=list_items.media_type)) as isfavorited,
+      (exists  (select 1 from reviews where reviews.creator_username='${username}'
+      and reviews.movie->>'id' = list_items.media_id and reviews.movie->>'type'=list_items.media_type)) as isReviewd
    from list_items where review_id = $1
   order by created_at;`, [id])
 
   res.status(200).json({
-    success: true, results: rows.map(row => {
-
-      return {
-        id: row.id,
-        media_id: row.movie_id,
-        media_title: row.movie_title,
-        media_poster: row.movie_poster,
-        media_release: row.movie_release,
-        media_type: row.movie_type,
-        media_rating: row.movie_rating,
-        iswatchlisted: row.iswatchlisted
-
-      }
-    })
+    success: true, results: rows,
   })
 
 
@@ -147,30 +150,25 @@ router.get('/items/:id', asyncHandler(async (req, res, next) => {
 router.put(
   '/add',
   asyncHandler(async (req, res, next) => {
-    const { item_id, list_id, movie_id, movie_type, movie_rating, movie_title, movie_poster, movie_release, } =
+    const { item_id, list_id, movie_id, movie_type, movie_title, movie_poster } =
       req.body
 
-    console.log(req.body.movie_id)
+    console.log(req.body.media_id)
     await pool.query(`insert into list_items (
       id,
       review_id,
-      movie_id,
-      movie_title,
-      movie_poster,
-      movie_release,
-      movie_type,    
-      movie_rating)
-      values ($1,$2,$3,$4,$5,$6,$7,$8);`,
-
+      media_id,
+      media_title,
+      media_poster,
+      media_type)
+      values ($1,$2,$3,$4,$5,$6);`,
       [
         item_id,
         list_id,
         movie_id,
         movie_title,
         movie_poster,
-        movie_release,
         movie_type,
-        movie_rating
       ]
     );
 
@@ -280,19 +278,19 @@ router.get(
     if (lang === undefined && year === undefined) {
 
       const { rows } = await pool.query(
-        `select id,title,rating,poster,release
+        `select id,title,rating,poster,release,'movie' as type
 			from movies where (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
-       and id not in (select movie_id from list_items where review_id=$2 and movie_type='movie' ) order by popularity desc offset $1 limit 20;`,
+       and id not in (select media_id from list_items where review_id=$2 and media_type='movie' ) order by popularity desc offset $1 limit 20;`,
         [offset, list_id]
       )
       res.status(200).send({ success: true, results: rows })
     } else if (lang === undefined && year !== undefined) {
 
       const { rows } = await pool.query(
-        `select id,title,rating,poster,release
+        `select id,title,rating,poster,release,'movie' as type
 			from movies where (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
       and release like '${year}%'
-       and id not in (select movie_id from list_items where review_id=$2 and movie_type='movie' ) order by popularity desc offset $1 limit 20;`,
+       and id not in (select media_id from list_items where review_id=$2 and media_type='movie' ) order by popularity desc offset $1 limit 20;`,
         [offset, list_id]
       )
       res.status(200).send({ success: true, results: rows })
@@ -300,20 +298,20 @@ router.get(
     } else if (lang !== undefined && year === undefined) {
 
       const { rows } = await pool.query(
-        `select id,title,rating,poster,release
+        `select id,title,rating,poster,release,'movie' as type
 			from movies where (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
     			and language='${lang}'
-       and id not in (select movie_id from list_items where review_id=$2 and movie_type='movie' ) order by popularity desc offset $1 limit 20;`,
+       and id not in (select media_id from list_items where review_id=$2 and media_type='movie' ) order by popularity desc offset $1 limit 20;`,
         [offset, list_id]
       )
       res.status(200).send({ success: true, results: rows })
     } else {
 
       const { rows } = await pool.query(
-        `select id,title,rating,poster,release
+        `select id,title,rating,poster,release,'movie' as type
 			from movies where (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
       and release like '${year}%' and language='${lang}'
-       and id not in (select movie_id from list_items where review_id=$2 and movie_type='movie' ) order by popularity desc offset $1 limit 20;`,
+       and id not in (select media_id from list_items where review_id=$2 and media_type='movie' ) order by popularity desc offset $1 limit 20;`,
         [offset, list_id]
       )
       res.status(200).send({ success: true, results: rows })
@@ -329,20 +327,20 @@ router.get(
     if (lang === undefined && year === undefined) {
 
       const { rows } = await pool.query(
-        `select id,title,rating,poster,release
+        `select id,title,rating,poster,release,'tv' as type
 			from tvshows where (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
       
-      and id not in (select movie_id from list_items where review_id=$2 and movie_type='tv')
+      and id not in (select media_id from list_items where review_id=$2 and media_type='tv')
        order by popularity desc offset $1 limit 20;`,
         [offset, list_id]
       )
       res.status(200).send({ success: true, results: rows })
     } else if (lang === undefined && year !== undefined) {
       const { rows } = await pool.query(
-        `select id,title,rating,poster,release
+        `select id,title,rating,poster,release,'tv' as type
 			from tvshows where (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
       	and release like '${year}%'
-      and id not in (select movie_id from list_items where review_id=$2 and movie_type='tv')
+      and id not in (select media_id from list_items where review_id=$2 and media_type='tv')
        order by popularity desc offset $1 limit 20;`,
         [offset, list_id]
       )
@@ -350,10 +348,10 @@ router.get(
 
     } else if (lang !== undefined && year === undefined) {
       const { rows } = await pool.query(
-        `select id,title,rating,poster,release
+        `select id,title,rating,poster,release,'tv' as type
 			from tvshows where (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
        and language='${lang}'
-      and id not in (select movie_id from list_items where review_id=$2 and movie_type='tv')
+      and id not in (select media_id from list_items where review_id=$2 and media_type='tv')
        order by popularity desc offset $1 limit 20;`,
         [offset, list_id]
       )
@@ -361,10 +359,10 @@ router.get(
 
     } else {
       const { rows } = await pool.query(
-        `select id,title,rating,poster,release
+        `select id,title,rating,poster,release,'tv' as type
 			from tvshows where (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
       and release like '${year}%' and language='${lang}'
-      and id not in (select movie_id from list_items where review_id=$2 and movie_type='tv')
+      and id not in (select media_id from list_items where review_id=$2 and media_type='tv')
        order by popularity desc offset $1 limit 20;`,
         [offset, list_id]
       )
@@ -387,7 +385,7 @@ router.get(
         `select id,title,rating,poster,release,type
 			from anime where (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%' )
       	and release like '${year}%'
-      and id not in (select movie_id from list_items where review_id=$2 and movie_type=anime.type) order by popularity desc offset $1 limit 20;`,
+      and id not in (select media_id from list_items where review_id=$2 and media_type=anime.type) order by popularity desc offset $1 limit 20;`,
         [offset, list_id]
       )
       res.status(200).send({ success: true, results: rows })
@@ -396,7 +394,7 @@ router.get(
       const { rows } = await pool.query(
         `select id,title,rating,poster,release,type
 			from anime where (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%' )
-      and id not in (select movie_id from list_items where review_id=$2 and movie_type=anime.type) order by popularity desc offset $1 limit 20;`,
+      and id not in (select media_id from list_items where review_id=$2 and media_type=anime.type) order by popularity desc offset $1 limit 20;`,
         [offset, list_id]
       )
       res.status(200).send({ success: true, results: rows })

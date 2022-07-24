@@ -20,9 +20,19 @@ router.get(
 		const { rows } = await pool.query(
 			`select id,title,release,rating,poster,type,
 			(exists  (select 1 from watchlist
-							where watchlist.username='${username}'
-							and watchlist.media_id = trending.id and watchlist.media_type=trending.type)
-							) as iswatchlisted,
+			where username='${username}'
+			and media_id = trending.id 
+			and media_type=trending.type)) as iswatchlisted,
+			(exists  (select 1 from watched
+			where watched.username='${username}'
+			and watched.media_id = trending.id 
+			and watched.media_type=trending.type)) as iswatched,
+			(exists  (select 1 from favorites
+			where favorites.username='${username}'
+			and favorites.media_id = trending.id 
+			and favorites.media_type=trending.type)) as isfavorited,
+			(exists  (select 1 from reviews where reviews.creator_username='${username}'
+			and reviews.movie->>'id' = trending.id and reviews.movie->>'type'=trending.type)) as isReviewd,
 			(select rating from apprating where id = trending.id and type=trending.type) as rating_by_app
 			from trending where date='${a}' order by popularity desc limit 20;`
 		)
@@ -40,7 +50,7 @@ router.get(
 
 			console.log('no language and year')
 			const { rows } = await pool.query(
-				`select id,title,rating,poster,release,
+				`select id,title,rating,poster,release,'movie' as type,
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
@@ -54,7 +64,7 @@ router.get(
 
 			console.log('no language but year')
 			const { rows } = await pool.query(
-				`select id,title,rating,poster,release,
+				`select id,title,rating,poster,release,'movie' as type,
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
@@ -68,7 +78,7 @@ router.get(
 
 			console.log('language but no year')
 			const { rows } = await pool.query(
-				`select id,title,rating,poster,release,
+				`select id,title,rating,poster,release,'movie' as type,
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
@@ -81,7 +91,7 @@ router.get(
 		} else {
 
 			const { rows } = await pool.query(
-				`select id,title,rating,poster,release,
+				`select id,title,rating,poster,release,'movie' as type,
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
@@ -105,7 +115,7 @@ router.get(
 		if (lang === undefined && year === undefined) {
 
 			const { rows } = await pool.query(
-				`select id,title,rating,poster,release
+				`select id,title,rating,poster,release,'tv' as type
 			,    (exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		    and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
@@ -118,7 +128,7 @@ router.get(
 
 			console.log('no language but year')
 			const { rows } = await pool.query(
-				`select id,title,rating,poster,release,
+				`select id,title,rating,poster,release,'tv' as type,
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
@@ -132,7 +142,7 @@ router.get(
 
 			console.log('language but no year')
 			const { rows } = await pool.query(
-				`select id,title,rating,poster,release,
+				`select id,title,rating,poster,release,'tv' as type,
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
@@ -145,7 +155,7 @@ router.get(
 		} else {
 
 			const { rows } = await pool.query(
-				`select id,title,rating,poster,release,
+				`select id,title,rating,poster,release,'tv' as type,
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
@@ -195,6 +205,7 @@ router.get(
 		}
 	})
 )
+
 router.get(
 	'/full/movies',
 	asyncHandler(async (req, res, next) => {
@@ -286,6 +297,31 @@ router.get(
 	})
 )
 
+
+router.get(
+	'/lists',
+	asyncHandler(async (req, res, next) => {
+		const { query, username } = req.query
+		const { page } = req.query
+		const offset = (page ?? 0) * 20
+		const { rows } = await pool.query(
+			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
+			title,list_images,list_id,
+			users.critic,
+			(select count(*) from list_items where review_id=reviews.list_id),
+			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
+			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}'))
+			reported FROM reviews 
+			LEFT JOIN users on reviews.creator_username=users.username  
+			WHERE list_id is not null and (lower(title) like '%${query}%') 
+			order by reviews.created_at desc offset $1 limit 20;`,
+			[offset]
+		)
+		res.status(200).send({ success: true, results: formatResultV2(rows) })
+
+	})
+)
+
 router.get(
 	'/hashtags',
 	asyncHandler(async (req, res, next) => {
@@ -306,5 +342,80 @@ router.get(
 		res.status(200).send({ success: true, results: rows })
 	})
 )
+router.get(
+	'/lists/user/:id',
+	asyncHandler(async (req, res, next) => {
+		const { username } = req.query
+		const { page } = req.query
+		const offset = (page ?? 0) * 20
+		const { rows } = await pool.query(
+			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
+			title,list_images,list_id,
+			users.critic,
+			(select count(*) from list_items where review_id=reviews.list_id),
+			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
+			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}'))
+			reported FROM reviews 
+			LEFT JOIN users on reviews.creator_username=users.username  
+			WHERE list_id is not null and creator_username='${req.params.id}'
+			order by reviews.created_at desc offset $1 limit 20;`,
+			[offset]
+		)
+		res.status(200).send({ success: true, results: formatResultV2(rows) })
 
+	})
+)
+
+function formatResultV2(rows, isFollow) {
+	return rows.map((row) => {
+		return {
+			id: row.id,
+			creator_username: row.creator_username,
+			display_name: row.display_name,
+			avatar_url: row.avatar_url,
+			movie: row.movie,
+			media: row.media,
+			likes: row.likes,
+			replies: row.replies,
+			repling_to: row.repling_to,
+			mentions: row.mentions,
+			body: row.body,
+			isLiked: row.liked,
+			isReported: row.reported,
+			thought_on: row.thought_on,
+			isFollow: isFollow,
+			title: row.title,
+			list_id: row.list_id,
+			list_images: row.list_images,
+			count: row.count,
+			critic: row.critic,
+			created_at: formateTime(row.created_at),
+		}
+	})
+}
+
+function formateTime(time) {
+	function padTo2Digits(num) {
+		return num.toString().padStart(2, '0')
+	}
+
+	function formatDate(date) {
+		return (
+			[
+				date.getFullYear(),
+				padTo2Digits(date.getMonth() + 1),
+				padTo2Digits(date.getDate()),
+			].join('-') +
+			' ' +
+			[
+				padTo2Digits(date.getHours()),
+				padTo2Digits(date.getMinutes()),
+				padTo2Digits(date.getSeconds()),
+			].join(':')
+		)
+	}
+	const now = new Date(time)
+	const date = formatDate(now)
+	return date
+}
 export default router

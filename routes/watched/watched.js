@@ -40,6 +40,8 @@ router.delete(
     })
   })
 )
+
+
 router.get(
   '/:id',
   asyncHandler(async (req, res, next) => {
@@ -51,7 +53,7 @@ router.get(
 			(exists  (select 1 from watched
 				where watched.username='${username}'
 		    and watched.media_id = watched.media_id and watched.media_type=watched.media_type)
-			     ) as iswatcheded
+			     ) as iswatched
 			from watched where username=$1 order by created desc offset $2 limit 20; `,
       [id, offset]
     )
