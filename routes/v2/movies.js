@@ -24,7 +24,8 @@ router.get(
         and favorites.media_id = movies.id 
         and favorites.media_type='movie')) as isfavorited,
         (exists  (select 1 from reviews where reviews.creator_username='${username}'
-        and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')) as isReviewd
+        and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')) as isReviewd,
+        (select rating from apprating where id = movies.id and type='movie') as rating_by_app
         from movies
         where language = $1 and adult = false and
         poster is not null and (release)::timestamp > current_date order by release limit 20;`,
@@ -45,6 +46,9 @@ router.get(
       (case when watchlist.media_type ='movie' then (select release from movies where id=watchlist.media_id)
       when watchlist.media_type='tv' then (select release from tvshows where id=watchlist.media_id) 
       else 'N/A' end) as media_release,
+      (case when watchlist.media_type ='movie' then (select rating from movies where id=watchlist.media_id)
+      when watchlist.media_type='tv' then (select rating from tvshows where id=watchlist.media_id) 
+      else 0.0 end) as media_rating,
 			(exists  (select 1 from watchlist as yo
 			where yo.username='${username}'
 		  and yo.media_id = watchlist.media_id 
@@ -59,6 +63,8 @@ router.get(
       and favorites.media_type=watchlist.media_type)) as isfavorited,
       (exists  (select 1 from reviews where reviews.creator_username='${username}'
        and reviews.movie->>'id' = watchlist.media_id and reviews.movie->>'type'=watchlist.media_type)) as isReviewd
+      ,(select rating from apprating where id = watchlist.media_id and type=watchlist.media_type) as rating_by_app
+
       from watchlist where username=$1 order by created desc offset $2 limit 20; `,
       [id, offset]
     )
@@ -81,6 +87,9 @@ router.get(
       (case when watched.media_type ='movie' then (select release from movies where id=watched.media_id)
       when watched.media_type='tv' then (select release from tvshows where id=watched.media_id) 
       else 'N/A' end) as media_release,
+      (case when watched.media_type ='movie' then (select rating from movies where id=watched.media_id)
+      when watched.media_type='tv' then (select rating from tvshows where id=watched.media_id) 
+      else 0.0 end) as media_rating,
 			(exists  (select 1 from watchlist
 			where watchlist.username='${username}'
 		  and watchlist.media_id = watched.media_id 
@@ -95,6 +104,7 @@ router.get(
       and favorites.media_type=watched.media_type)) as isfavorited,
       (exists  (select 1 from reviews where reviews.creator_username='${username}'
       and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type)) as isReviewd
+      ,(select rating from apprating where id = watched.media_id and type=watched.media_type) as rating_by_app 
       from watched where username=$1 order by created desc offset $2 limit 20; `,
       [id, offset]
     )
@@ -117,6 +127,9 @@ router.get(
       (case when favorites.media_type ='movie' then (select release from movies where id=favorites.media_id)
       when favorites.media_type='tv' then (select release from tvshows where id=favorites.media_id) 
       else 'N/A' end) as media_release,
+      (case when favorites.media_type ='movie' then (select rating from movies where id=favorites.media_id)
+      when favorites.media_type='tv' then (select rating from tvshows where id=favorites.media_id) 
+      else 0.0 end) as media_rating,
 			(exists  (select 1 from watchlist
 			where watchlist.username='${username}'
 		  and watchlist.media_id = favorites.media_id 
@@ -131,6 +144,7 @@ router.get(
       and yo.media_type=favorites.media_type)) as isfavorited,
       (exists  (select 1 from reviews where reviews.creator_username='${username}'
       and reviews.movie->>'id' = favorites.media_id and reviews.movie->>'type'=favorites.media_type)) as isReviewd
+      ,(select rating from apprating where id = favorites.media_id and type=favorites.media_type) as rating_by_app 
       from favorites where username=$1 order by created desc offset $2 limit 20; `,
       [id, offset]
     )

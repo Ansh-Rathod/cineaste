@@ -334,7 +334,7 @@ router.get(
 		const { username } = req.params
 
 		const { rows } = await pool.query(
-			`SELECT array(select distinct unnest (languages)) AS languages
+			`SELECT languages
 		from users where username=$1;`,
 			[username]
 		)

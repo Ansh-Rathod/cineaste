@@ -192,7 +192,7 @@ router.get(
 
 		const { username } = req.query
 		const { rows } = await pool.query(
-			`	select platforms_movies.media_id as id,
+			`	(select platforms_movies.media_id as id,
 				platforms_movies.media_type as type,
 				movies.rating,
 				movies.poster,
@@ -202,20 +202,43 @@ router.get(
 				(exists  (select 1 from watchlist
 				where watchlist.username='${username}'
 				and media_id = platforms_movies.media_id
-				and media_type=platforms_movies.media_type)) as iswatchlisted,
+				and media_type='movie')) as iswatchlisted,
 				(exists  (select 1 from watched
 				where watched.username='${username}'
 				and watched.media_id = platforms_movies.media_id
-				and watched.media_type=platforms_movies.media_type)) as iswatched,
+				and watched.media_type='movie')) as iswatched,
 				(exists  (select 1 from favorites
 				where favorites.username='${username}'
 				and favorites.media_id = platforms_movies.media_id
-				and favorites.media_type=platforms_movies.media_type)) as isfavorited,
+				and favorites.media_type='movie')) as isfavorited,
 				(exists  (select 1 from reviews where reviews.creator_username='${username}'
-				and reviews.movie->>'id' = platforms_movies.media_id and reviews.movie->>'type'=platforms_movies.media_type)) as isReviewd,
-				(select rating from apprating where apprating.id = platforms_movies.media_id and apprating.type=platforms_movies.media_type) as rating_by_app
-				from platforms_movies left join movies on platforms_movies.media_id = movies.id
-				where platforms_movies.platform = $1;`,
+				and reviews.movie->>'id' = platforms_movies.media_id and reviews.movie->>'type'='movie')) as isReviewd,
+				(select rating from apprating where id = platforms_movies.media_id and type='movie') as rating_by_app
+				from platforms_movies left join movies on platforms_movies.media_id = movies.id where platforms_movies.media_type='movie' and platform=$1)
+				union all
+				(select platforms_movies.media_id as id,
+				platforms_movies.media_type as type,
+				tvshows.rating,
+				tvshows.poster,
+				tvshows.title,
+				tvshows.release,
+				platforms_movies.created,
+				(exists  (select 1 from watchlist
+				where watchlist.username='${username}'
+				and media_id = platforms_movies.media_id
+				and media_type='tv')) as iswatchlisted,
+				(exists  (select 1 from watched
+				where watched.username='${username}'
+				and watched.media_id = platforms_movies.media_id
+				and watched.media_type='tv')) as iswatched,
+				(exists  (select 1 from favorites
+				where favorites.username='${username}'
+				and favorites.media_id = platforms_movies.media_id
+				and favorites.media_type='tv')) as isfavorited,
+				(exists  (select 1 from reviews where reviews.creator_username='${username}'
+				and reviews.movie->>'id' = platforms_movies.media_id and reviews.movie->>'type'='tv')) as isReviewd,
+				(select rating from apprating where id = platforms_movies.media_id and type='tv') as rating_by_app
+				from platforms_movies left join tvshows on platforms_movies.media_id = tvshows.id where media_type='tv' and platform=$1);`,
 			[id]
 		)
 
