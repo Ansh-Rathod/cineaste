@@ -49,6 +49,23 @@ function formatResult(rows) {
 		}
 	})
 }
+
+function formatTrailers(rows) {
+	return rows.map((row) => {
+		return {
+			id: row.id,
+			url: row.url,
+			code: row.code,
+			title: row.title,
+			language: row.language,
+			media_id: row.media_id,
+			media_type: row.media_type,
+			media_title: row.media_title,
+			media_poster: row.media_poster,
+			created: formateTime(row.created)
+		}
+	})
+}
 router.get(
 	'/hashtags',
 	asyncHandler(async (req, res, next) => {
@@ -262,12 +279,15 @@ router.get(
 router.get(
 	'/trailers',
 	asyncHandler(async (req, res, next) => {
+		const { username, page } = req.query
+		const offset = (page ?? 0) * 20
+
 		const { rows } = await pool.query(
-			`select * from trailers order by created desc limit 20;`,
+			`select * from trailers order by created desc offset $1 limit 20;`, [offset]
 		)
 		res.status(200).send({
 			success: true,
-			results: rows,
+			results: formatTrailers(rows),
 		})
 
 	})

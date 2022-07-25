@@ -141,10 +141,12 @@ router.post(
 					media_id,
 					media_type,
 					media_title,
-					media_poster) select $1, $2, $3, $4, $5 
+					media_poster,
+					media_rating
+					) select $1, $2, $3, $4, $5,$6 
 					WHERE NOT EXISTS (SELECT id FROM watched WHERE media_id = $2 and username=$1 and media_type=$3);`,
 
-				[req.body.username, req.body.movie.id, req.body.movie.type, req.body.movie.title, req.body.movie.poster])
+				[req.body.username, req.body.movie.id, req.body.movie.type, req.body.movie.title, req.body.movie.poster, req.body.movie.rating])
 
 		}
 

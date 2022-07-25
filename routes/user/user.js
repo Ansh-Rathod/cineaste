@@ -365,5 +365,28 @@ router.get(
 	})
 )
 
+router.get(
+	'/genres/get/movies/:id',
+	asyncHandler(async (req, res, next) => {
+		const { id } = req.params
+		const { page } = req.query
+		const offset = (page ?? 0) * 20
+		const { rows } = await pool.query(
+			`select poster,title,id,rating,release,'movie' as type,
+			(select rating from apprating where id = movies.id and type='movie') as rating_by_app	
+			from movies
+			 where '${id}'= ANY(genres) order by popularity desc offset $1 limit 20;`,
+			[offset]
+		)
+
+		res.status(200).send({
+			success: true,
+			results: rows,
+		})
+	})
+)
+
+
+
 
 export default router

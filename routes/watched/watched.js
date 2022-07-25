@@ -6,7 +6,7 @@ const router = express.Router()
 router.post(
   '/add',
   asyncHandler(async (req, res, next) => {
-    const { username, media_id, media_type, media_title, media_poster } =
+    const { username, media_id, media_type, media_title, media_poster, media_rating } =
       req.body
     await pool.query(
       `insert into watched (	
@@ -14,9 +14,27 @@ router.post(
                         media_id,
                         media_type,
                         media_title,
-                        media_poster) values($1,$2,$3,$4,$5);`,
+                        media_poster,
+                        media_rating
+                        ) values($1,$2,$3,$4,$5,$6);`,
 
-      [username, media_id, media_type, media_title, media_poster]
+      [username, media_id, media_type, media_title, media_poster, media_rating]
+    )
+
+    res.status(200).send({
+      success: true,
+    })
+  })
+)
+
+router.post(
+  '/update',
+  asyncHandler(async (req, res, next) => {
+    const { username, media_id, media_type, media_rating } =
+      req.body
+    await pool.query(
+      `update watched set media_rating=$1 where username=$2 and media_id=$3 and media_type=$4;`,
+      [media_rating, username, media_id, media_type]
     )
 
     res.status(200).send({
