@@ -32,7 +32,7 @@ router.get(
 			and favorites.media_id = trending.id 
 			and favorites.media_type=trending.type)) as isfavorited,
 			(exists  (select 1 from reviews where reviews.creator_username='${username}'
-			and reviews.movie->>'id' = trending.id and reviews.movie->>'type'=trending.type)) as isReviewd,
+			and reviews.movie->>'id' = trending.id and reviews.movie->>'type'=trending.type)) as isreviewd,
 			(select rating from apprating where id = trending.id and type=trending.type) as rating_by_app
 			from trending where date='${a}' order by popularity desc limit 20;`
 		)
@@ -54,7 +54,7 @@ router.get(
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
-			     ) as isReviewd
+			     ) as isreviewd
 			from movies where (lower(searchtext) like '%${query}%'  or lower(title) like '%${query}%') 
 			order by popularity desc offset $1 limit 20;`,
 				[offset]
@@ -68,7 +68,7 @@ router.get(
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
-			     ) as isReviewd
+			     ) as isreviewd
 			from movies where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
 			 and release like '${year}%' order by popularity desc offset $1 limit 20;`,
 				[offset]
@@ -82,7 +82,7 @@ router.get(
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
-			     ) as isReviewd
+			     ) as isreviewd
 			from movies where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') 
 			and language='${lang}' order by popularity desc offset $1 limit 20;`,
 				[offset]
@@ -95,7 +95,7 @@ router.get(
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')
-			     ) as isReviewd
+			     ) as isreviewd
 			from movies where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') 
 			and release like '${year}%' and language='${lang}' order by popularity desc offset $1 limit 20;`,
 				[offset]
@@ -119,7 +119,7 @@ router.get(
 			,    (exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		    and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
-			     ) as isReviewd
+			     ) as isreviewd
 			from tvshows where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') order by popularity desc offset $1 limit 20;`,
 				[offset]
 			)
@@ -132,7 +132,7 @@ router.get(
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
-			     ) as isReviewd
+			     ) as isreviewd
 			from tvshows where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') 
 			and release like '${year}%' order by popularity desc offset $1 limit 20;`,
 				[offset]
@@ -146,7 +146,7 @@ router.get(
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
-			     ) as isReviewd
+			     ) as isreviewd
 			from tvshows where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%')
 			 and language='${lang}' order by popularity desc offset $1 limit 20;`,
 				[offset]
@@ -159,7 +159,7 @@ router.get(
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')
-			     ) as isReviewd
+			     ) as isreviewd
 			from tvshows where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') 
 			and release like '${year}%' and language='${lang}' order by popularity desc offset $1 limit 20;`,
 				[offset]
@@ -184,7 +184,7 @@ router.get(
 			(exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		      and reviews.movie->>'id' = anime.id and reviews.movie->>'type'=anime.type)
-			     ) as isReviewd
+			     ) as isreviewd
 			from anime where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') 
 			and release like '${year}%' order by popularity desc offset $1 limit 20;`,
 				[offset]
@@ -197,7 +197,7 @@ router.get(
 			,    (exists  (select 1 from reviews
 				where reviews.creator_username='${username}'
 		    and reviews.movie->>'id' = anime.id and reviews.movie->>'type'=anime.type)
-			     ) as isReviewd
+			     ) as isreviewd
 			from anime where  (lower(searchtext) like '%${query}%' or lower(title) like '%${query}%') order by popularity desc offset $1 limit 20;`,
 				[offset]
 			)

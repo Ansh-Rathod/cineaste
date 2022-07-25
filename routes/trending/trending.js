@@ -229,7 +229,7 @@ router.get(
 				and favorites.media_id = platforms_movies.media_id
 				and favorites.media_type='movie')) as isfavorited,
 				(exists  (select 1 from reviews where reviews.creator_username='${username}'
-				and reviews.movie->>'id' = platforms_movies.media_id and reviews.movie->>'type'='movie')) as isReviewd,
+				and reviews.movie->>'id' = platforms_movies.media_id and reviews.movie->>'type'='movie')) as isreviewd,
 				(select rating from apprating where id = platforms_movies.media_id and type='movie') as rating_by_app
 				from platforms_movies left join movies on platforms_movies.media_id = movies.id where platforms_movies.media_type='movie' and platform=$1)
 				union all
@@ -253,7 +253,7 @@ router.get(
 				and favorites.media_id = platforms_movies.media_id
 				and favorites.media_type='tv')) as isfavorited,
 				(exists  (select 1 from reviews where reviews.creator_username='${username}'
-				and reviews.movie->>'id' = platforms_movies.media_id and reviews.movie->>'type'='tv')) as isReviewd,
+				and reviews.movie->>'id' = platforms_movies.media_id and reviews.movie->>'type'='tv')) as isreviewd,
 				(select rating from apprating where id = platforms_movies.media_id and type='tv') as rating_by_app
 				from platforms_movies left join tvshows on platforms_movies.media_id = tvshows.id where media_type='tv' and platform=$1);`,
 			[id]
@@ -312,7 +312,7 @@ router.get(
         and favorites.media_id = movies.id 
         and favorites.media_type='movie')) as isfavorited,
         (exists  (select 1 from reviews where reviews.creator_username='${username}'
-        and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')) as isReviewd,
+        and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')) as isreviewd,
 			(select rating from apprating where id = movies.id and type='movie') as rating_by_app
 			from movies where  language in (select languages[1] from users where username=$1) and rating>8 and poster is not null order by random() limit 20;`,
 			[username]
@@ -344,7 +344,7 @@ router.get(
         and favorites.media_id = tvshows.id 
         and favorites.media_type='tv')) as isfavorited,
         (exists  (select 1 from reviews where reviews.creator_username='${username}'
-        and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')) as isReviewd,
+        and reviews.movie->>'id' = tvshows.id and reviews.movie->>'type'='tv')) as isreviewd,
 			(select rating from apprating where id = tvshows.id and type='tv') as rating_by_app
 			from tvshows where language in (select languages[1] from users where username=$1) and rating>8 and poster is not null order by random() limit 20;`,
 			[username]
@@ -376,7 +376,7 @@ router.get(
         and favorites.media_id = anime.id 
         and favorites.media_type=anime.type)) as isfavorited,
         (exists  (select 1 from reviews where reviews.creator_username='${username}'
-        and reviews.movie->>'id' = anime.id and reviews.movie->>'type'=anime.type)) as isReviewd,
+        and reviews.movie->>'id' = anime.id and reviews.movie->>'type'=anime.type)) as isreviewd,
 			(select rating from apprating where id = anime.id and type=anime.type) as rating_by_app
 			from anime where rating > 7 and poster is not null order by random() limit 20;`,
 		)

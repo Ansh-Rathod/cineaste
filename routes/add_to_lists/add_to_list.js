@@ -136,7 +136,7 @@ router.get('/items/:id', asyncHandler(async (req, res, next) => {
 		  and favorites.media_id = list_items.media_id
       and favorites.media_type=list_items.media_type)) as isfavorited,
       (exists  (select 1 from reviews where reviews.creator_username='${username}'
-      and reviews.movie->>'id' = list_items.media_id and reviews.movie->>'type'=list_items.media_type)) as isReviewd
+      and reviews.movie->>'id' = list_items.media_id and reviews.movie->>'type'=list_items.media_type)) as isreviewd
    from list_items where review_id = $1
   order by created_at;`, [id])
 

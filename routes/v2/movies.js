@@ -24,7 +24,7 @@ router.get(
         and favorites.media_id = movies.id 
         and favorites.media_type='movie')) as isfavorited,
         (exists  (select 1 from reviews where reviews.creator_username='${username}'
-        and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')) as isReviewd,
+        and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')) as isreviewd,
         (select rating from apprating where id = movies.id and type='movie') as rating_by_app
         from movies
         where language = $1 and adult = false and
@@ -62,7 +62,7 @@ router.get(
 		  and favorites.media_id = watchlist.media_id 
       and favorites.media_type=watchlist.media_type)) as isfavorited,
       (exists  (select 1 from reviews where reviews.creator_username='${username}'
-       and reviews.movie->>'id' = watchlist.media_id and reviews.movie->>'type'=watchlist.media_type)) as isReviewd
+       and reviews.movie->>'id' = watchlist.media_id and reviews.movie->>'type'=watchlist.media_type)) as isreviewd
       ,(select rating from apprating where id = watchlist.media_id and type=watchlist.media_type) as rating_by_app
 
       from watchlist where username=$1 order by created desc offset $2 limit 20; `,
@@ -83,7 +83,8 @@ router.get(
     const { username, page } = req.query
     const offset = (page ?? 0) * 20
     const { rows } = await pool.query(
-      `select *,
+      `select media_id,media_type,media_title,media_poster,media_rating as user_rating,
+      (select avatar_url from users where username=watched.username) as avatar_url,
       (case when watched.media_type ='movie' then (select release from movies where id=watched.media_id)
       when watched.media_type='tv' then (select release from tvshows where id=watched.media_id) 
       else 'N/A' end) as media_release,
@@ -103,7 +104,7 @@ router.get(
 		  and favorites.media_id = watched.media_id 
       and favorites.media_type=watched.media_type)) as isfavorited,
       (exists  (select 1 from reviews where reviews.creator_username='${username}'
-      and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type)) as isReviewd
+      and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type)) as isreviewd
       ,(select rating from apprating where id = watched.media_id and type=watched.media_type) as rating_by_app 
       from watched where username=$1 order by created desc offset $2 limit 20; `,
       [id, offset]
@@ -143,7 +144,7 @@ router.get(
 		  and yo.media_id = favorites.media_id 
       and yo.media_type=favorites.media_type)) as isfavorited,
       (exists  (select 1 from reviews where reviews.creator_username='${username}'
-      and reviews.movie->>'id' = favorites.media_id and reviews.movie->>'type'=favorites.media_type)) as isReviewd
+      and reviews.movie->>'id' = favorites.media_id and reviews.movie->>'type'=favorites.media_type)) as isreviewd
       ,(select rating from apprating where id = favorites.media_id and type=favorites.media_type) as rating_by_app 
       from favorites where username=$1 order by created desc offset $2 limit 20; `,
       [id, offset]

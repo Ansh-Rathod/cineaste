@@ -31,7 +31,7 @@ router.get(
 			and favorites.media_id = trending.id 
 			and favorites.media_type=trending.type)) as isfavorited,
 			(exists  (select 1 from reviews where reviews.creator_username='${username}'
-			and reviews.movie->>'id' = trending.id and reviews.movie->>'type'=trending.type)) as isReviewd,
+			and reviews.movie->>'id' = trending.id and reviews.movie->>'type'=trending.type)) as isreviewd,
 			(select rating from apprating where id = trending.id and type=trending.type) as rating_by_app
 			from trending where date='${a}' and type='movie';`
 		)
@@ -73,7 +73,7 @@ router.get(
 						and favorites.media_id = trending.id 
 						and favorites.media_type=trending.type)) as isfavorited,
 						(exists  (select 1 from reviews where reviews.creator_username='${username}'
-						and reviews.movie->>'id' = trending.id and reviews.movie->>'type'=trending.type)) as isReviewd,
+						and reviews.movie->>'id' = trending.id and reviews.movie->>'type'=trending.type)) as isreviewd,
 						(select rating from apprating where id = trending.id and type=trending.type) as rating_by_app;`,
 							[
 								movie.id,
@@ -105,7 +105,7 @@ router.get(
 								iswatchlisted: movie.iswatchlisted,
 								isfavorited: movie.isfavorited,
 								iswatched: movie.iswatched,
-								isReviewd: movie.isReviewd,
+								isreviewd: movie.isreviewd,
 								rating_by_app: movie.rating_by_app
 							}
 						}),
@@ -163,7 +163,7 @@ router.get(
 			(exists  (select 1 from favorites where favorites.username='${username}' and favorites.media_id = movie_info.id and favorites.media_type='movie')) as isFavorited,
 			(exists  (select 1 from watchlist where watchlist.username='${username}' and watchlist.media_id = movie_info.id and watchlist.media_type='movie')) as iswatchlisted,
 			(exists  (select 1 from watched where watched.username='${username}' and watched.media_id = movie_info.id and watched.media_type='movie')) as iswatched,
-			(exists  (select 1 from reviews where reviews.creator_username='${username}' and reviews.movie->>'id' = movie_info.id and reviews.movie->>'type'='movie')) as isReviewd,
+			(exists  (select 1 from reviews where reviews.creator_username='${username}' and reviews.movie->>'id' = movie_info.id and reviews.movie->>'type'='movie')) as isreviewd,
 			(select rating from apprating where id = movie_info.id and type='movie') as rating_by_app			
 			from movie_info where id='${req.params.id}'and week_num='${week}'; `
 		)
@@ -222,7 +222,7 @@ router.get(
 						     (exists  (select 1 from reviews
 							where reviews.creator_username='${username}'
 					    and reviews.movie->>'id' = movie_info.id and reviews.movie->>'type'='movie')
-						     ) as isReviewd,
+						     ) as isreviewd,
 						(select rating from apprating where id = '${data.data.id}' and type='movie') as rating_by_app`,
 						[
 							data.data.id,

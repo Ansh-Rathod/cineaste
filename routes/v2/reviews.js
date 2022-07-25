@@ -245,4 +245,45 @@ router.get(
 	})
 )
 
+
+router.get(
+	'/user/popular/following',
+	asyncHandler(async (req, res, next) => {
+		const { page, username } = req.query
+
+		const offset = (page ?? 0) * 20
+		const { rows } = await pool.query(
+			`select media_id,media_type,media_title,media_poster,media_rating as user_rating,
+					(select avatar_url from users where username=watched.username) as avatar_url,
+					(case when watched.media_type ='movie' then (select release from movies where id=watched.media_id)
+					when watched.media_type='tv' then (select release from tvshows where id=watched.media_id) 
+					else 'N/A' end) as media_release,
+					(case when watched.media_type ='movie' then (select rating from movies where id=watched.media_id)
+					when watched.media_type='tv' then (select rating from tvshows where id=watched.media_id) 
+					else 0.0 end) as media_rating,
+					(exists  (select 1 from watchlist
+					where watchlist.username='${username}'
+					and watchlist.media_id = watched.media_id 
+					and watchlist.media_type=watched.media_type)) as iswatchlisted,
+					(exists  (select 1 from watched as yo
+					where yo.username='${username}'
+					and yo.media_id = watched.media_id 
+					and yo.media_type=watched.media_type)) as iswatched,
+					(exists  (select 1 from favorites
+					where favorites.username='${username}'
+					and favorites.media_id = watched.media_id 
+					and favorites.media_type=watched.media_type)) as isfavorited,
+					(exists  (select 1 from reviews where reviews.creator_username='${username}'
+					and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type)) as isreviewd
+					,(select rating from apprating where id = watched.media_id and type=watched.media_type) as rating_by_app 
+					from watched where username in (SELECT user_id FROM followers WHERE follower_id='${username}')
+					and media_rating !=0.0 and created > current_date - interval '7 days' order by created desc offset $1 limit 20;`,
+			[offset]
+		)
+		res.status(200).json({ success: true, results: rows })
+	})
+)
+
+
+
 export default router
