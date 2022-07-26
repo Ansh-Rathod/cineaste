@@ -37,6 +37,7 @@ function formatResult(rows) {
 			avatar_url: row.avatar_url,
 			movie: row.movie,
 			media: row.media,
+			critic: row.critic,
 			likes: row.likes,
 			replies: row.replies,
 			repling_to: row.repling_to,
@@ -107,6 +108,7 @@ router.get(
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
 			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
+			users.critic,
 			(exists  (select 1 from liked
 				where liked.user_id='${username}' and liked.review_id =reviews.id)
 			     ) as liked,

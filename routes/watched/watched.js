@@ -61,26 +61,71 @@ router.delete(
 
 
 router.get(
-  '/:id',
+  '/movies/:id',
   asyncHandler(async (req, res, next) => {
     const { id } = req.params
-    const { username, page } = req.query
+    const { username, page, type } = req.query
     const offset = (page ?? 0) * 20
     const { rows } = await pool.query(
-      `select *,
-			(exists  (select 1 from watched
-				where watched.username='${username}'
-		    and watched.media_id = watched.media_id and watched.media_type=watched.media_type)
-			     ) as iswatched
-			from watched where username=$1 order by created desc offset $2 limit 20; `,
-      [id, offset]
+      `select watched.username,display_name,avatar_url,critic, media_rating, 
+      watched.created,
+      (select id from reviews where reviews.creator_username=watched.username
+      and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type) as iswriten,
+      (exists  (select 1 from followers
+      where followers.user_id=users.username
+      and followers.follower_id = '${username}')
+      ) as isfollow
+      from watched
+      left join users on watched.username=users.username where media_id=$1 and media_type=$3 order by isfollow desc offset $2 limit 20;`,
+      [id, offset, type]
     )
 
     res.status(200).send({
       success: true,
-      results: rows,
+      results: formatResult(rows),
     })
   })
 )
+
+function formateTime(time) {
+  function padTo2Digits(num) {
+    return num.toString().padStart(2, '0')
+  }
+
+  function formatDate(date) {
+    return (
+      [
+        date.getFullYear(),
+        padTo2Digits(date.getMonth() + 1),
+        padTo2Digits(date.getDate()),
+      ].join('-') +
+      ' ' +
+      [
+        padTo2Digits(date.getHours()),
+        padTo2Digits(date.getMinutes()),
+        padTo2Digits(date.getSeconds()),
+      ].join(':')
+    )
+  }
+  const now = new Date(time)
+  const date = formatDate(now)
+  return date
+}
+
+function formatResult(rows, isFollow) {
+  return rows.map((row) => {
+    return {
+      media_rating: row.media_rating,
+      username: row.username,
+      display_name: row.display_name,
+      avatar_url: row.avatar_url,
+      isfollow: row.isfollow,
+      critic: row.critic,
+      iswriten: row.iswriten,
+      created: formateTime(row.created),
+    }
+  })
+}
+
 
 export default router

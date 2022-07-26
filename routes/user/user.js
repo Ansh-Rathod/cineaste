@@ -73,6 +73,19 @@ router.get(
 		res.status(200).json({ success: true, results: rows[0] ?? {} })
 	})
 )
+router.get(
+	'/counts/:id',
+	asyncHandler(async (req, res, next) => {
+		const { rows } = await pool.query(`
+      select
+			(select count(*) from watchlist where username =users.username) as watchlist_count,	 
+			(select count(*) from favorites where username =users.username) as favorites_count,	 
+			(select count(*) from watched where username =users.username) as watched_count from users where username = $1;`, [req.params.id]
+		)
+
+		res.status(200).json({ success: true, results: rows[0] ?? {} })
+	})
+)
 
 router.put(
 	'/username/check',
@@ -112,9 +125,9 @@ router.post(
 
 		const data = await pool.query(
 			`select token_id,
-			(select display_name from users where username=$2) as name,
-			(select avatar_url from users where username=$2) as avatar_url
-			from users where username=$1`,
+			(select display_name from users where username = $2) as name,
+		(select avatar_url from users where username = $2) as avatar_url
+			from users where username = $1`,
 			[user_id, follower_id]
 		)
 		if (data.rows[0].token_id !== 'null') {
@@ -150,13 +163,13 @@ router.get(
 
 		const { rows } = await pool.query(
 			`
-		select users.id,users.username,users.display_name,users.avatar_url,
-			critic,
+		select users.id, users.username, users.display_name, users.avatar_url,
+	critic,
 
-		(exists  (select 1 from followers
-		where followers.user_id=users.username
+	(exists(select 1 from followers
+		where followers.user_id = users.username
 		and followers.follower_id = '${username}')
-		) as isfollow
+	) as isfollow
 		from followers left join users 
 		on followers.user_id = users.username where follower_id = $1 
 		order by isfollow desc offset $2 limit 20`,
@@ -173,15 +186,15 @@ router.get(
 
 		const { rows } = await pool.query(
 			`
-			select users.id,users.username,users.display_name,users.avatar_url,
-			critic,
-						(exists  (select 1 from followers
-							where followers.user_id=users.username
+			select users.id, users.username, users.display_name, users.avatar_url,
+	critic,
+	(exists(select 1 from followers
+							where followers.user_id = users.username
 					    and followers.follower_id = '${username}')
-						     ) as isfollow
+	) as isfollow
 			from followers left join users 
 			on followers.follower_id = users.username where user_id = $1 
-			order by isfollow desc offset $2 limit 20;`,
+			order by isfollow desc offset $2 limit 20; `,
 			[req.params.id, offset]
 		)
 		res.status(200).json({ success: true, results: rows })
@@ -195,16 +208,16 @@ router.get(
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`select username,display_name,avatar_url,
-			critic,
-			(exists  (select 1 from followers
-			where followers.user_id=users.username
+			`select username, display_name, avatar_url,
+	critic,
+	(exists(select 1 from followers
+			where followers.user_id = users.username
 			and followers.follower_id = '${username}')) as isfollow
 			from users 
                   where username not in
-                  (select user_id from followers where follower_id = '${username}')	and 
-			(select count(*) from reviews where creator_username =users.username)>0	
-			order by random() limit 20;`
+	(select user_id from followers where follower_id = '${username}') and
+		(select count(*) from reviews where creator_username = users.username) > 0	
+			order by random() limit 20; `
 		)
 		res.status(200).json({ success: true, results: rows })
 	})
@@ -216,12 +229,12 @@ router.post(
 		const { name, bio, backdrop, profile, username } = req.body
 		await pool.query(
 			`update users set
-			display_name=$1,
-			avatar_url=$2,
-			backdrop_url=$3,
-			bio=$4 
-			where username=$5
-			`,
+display_name = $1,
+	avatar_url = $2,
+	backdrop_url = $3,
+	bio = $4 
+			where username = $5
+	`,
 			[name, profile, backdrop, bio, username]
 		)
 		res.status(200).json({ success: true })
@@ -234,9 +247,9 @@ router.post(
 		const { username, backdrop } = req.body
 		await pool.query(
 			`update users set
-			backdrop_url=$1
-			where username=$2
-			`,
+backdrop_url = $1
+			where username = $2
+	`,
 			[backdrop, username]
 		)
 		res.status(200).json({ success: true })
@@ -250,9 +263,9 @@ router.post(
 		const { username, code } = req.body
 		await pool.query(
 			`update users set
-			country=$1
-			where username=$2
-			`,
+country = $1
+			where username = $2
+	`,
 			[code, username]
 		)
 		res.status(200).json({ success: true })
@@ -266,8 +279,8 @@ router.put(
 		const { username } = req.query
 		await pool.query(
 			`update users set
-		token_id=$1
-		where id=$2;`,
+token_id = $1
+		where id = $2; `,
 			['null', username]
 		)
 
@@ -281,7 +294,7 @@ router.put(
 		const { topics, username } = req.body
 
 		const { rows } = await pool.query(
-			`update users set genres = array_cat(genres,$1) where username=$2;`,
+			`update users set genres = array_cat(genres, $1) where username = $2; `,
 			[topics, username]
 		)
 
@@ -295,8 +308,8 @@ router.get(
 		const { username } = req.params
 
 		const { rows } = await pool.query(
-			`SELECT array(select distinct unnest (genres)) AS genres
-		from users where username=$1;`,
+			`SELECT array(select distinct unnest(genres)) AS genres
+		from users where username = $1; `,
 			[username]
 		)
 
@@ -310,7 +323,7 @@ router.put(
 		await pool.query(`update users set languages = '{}' where username = $1`,
 			[username])
 		const { rows } = await pool.query(
-			`update users set languages = array_cat(languages,$1) where username=$2;`,
+			`update users set languages = array_cat(languages, $1) where username = $2; `,
 			[topics, username]
 		)
 
@@ -335,7 +348,7 @@ router.get(
 
 		const { rows } = await pool.query(
 			`SELECT languages
-		from users where username=$1;`,
+		from users where username = $1; `,
 			[username]
 		)
 
@@ -351,10 +364,10 @@ router.get(
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`select poster,title,id,rating,release,'movie' as type,
-			(select rating from apprating where id = movies.id and type='movie') as rating_by_app	
+			`select poster, title, id, rating, release, 'movie' as type,
+	(select rating from apprating where id = movies.id and type = 'movie') as rating_by_app	
 			from movies
-			 where '${id}'= ANY(genres) order by popularity desc offset $1 limit 20;`,
+			 where '${id}' = ANY(genres) order by popularity desc offset $1 limit 20; `,
 			[offset]
 		)
 
@@ -372,10 +385,10 @@ router.get(
 		const { page } = req.query
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`select poster,title,id,rating,release,'movie' as type,
-			(select rating from apprating where id = movies.id and type='movie') as rating_by_app	
+			`select poster, title, id, rating, release, 'movie' as type,
+	(select rating from apprating where id = movies.id and type = 'movie') as rating_by_app	
 			from movies
-			 where '${id}'= ANY(genres) order by popularity desc offset $1 limit 20;`,
+			 where '${id}' = ANY(genres) order by popularity desc offset $1 limit 20; `,
 			[offset]
 		)
 

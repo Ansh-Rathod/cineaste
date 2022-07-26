@@ -84,6 +84,7 @@ router.get(
     const offset = (page ?? 0) * 20
     const { rows } = await pool.query(
       `select media_id,media_type,media_title,media_poster,media_rating as user_rating,
+      username,watched.created,
       (select avatar_url from users where username=watched.username) as avatar_url,
       (case when watched.media_type ='movie' then (select release from movies where id=watched.media_id)
       when watched.media_type='tv' then (select release from tvshows where id=watched.media_id) 
@@ -104,7 +105,9 @@ router.get(
 		  and favorites.media_id = watched.media_id 
       and favorites.media_type=watched.media_type)) as isfavorited,
       (exists  (select 1 from reviews where reviews.creator_username='${username}'
-      and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type)) as isreviewd
+      and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type)) as isreviewd,
+       (select id from reviews where reviews.creator_username=watched.username
+      and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type) as iswriten
       ,(select rating from apprating where id = watched.media_id and type=watched.media_type) as rating_by_app 
       from watched where username=$1 order by created desc offset $2 limit 20; `,
       [id, offset]
@@ -112,7 +115,7 @@ router.get(
 
     res.status(200).send({
       success: true,
-      results: rows,
+      results: formatResult(rows),
     })
   })
 )
@@ -157,5 +160,51 @@ router.get(
   })
 )
 
+function formateTime(time) {
+  function padTo2Digits(num) {
+    return num.toString().padStart(2, '0')
+  }
 
+  function formatDate(date) {
+    return (
+      [
+        date.getFullYear(),
+        padTo2Digits(date.getMonth() + 1),
+        padTo2Digits(date.getDate()),
+      ].join('-') +
+      ' ' +
+      [
+        padTo2Digits(date.getHours()),
+        padTo2Digits(date.getMinutes()),
+        padTo2Digits(date.getSeconds()),
+      ].join(':')
+    )
+  }
+  const now = new Date(time)
+  const date = formatDate(now)
+  return date
+}
+
+function formatResult(rows) {
+  return rows.map((row) => {
+    return {
+      media_id: row.media_id,
+      media_type: row.media_type,
+      media_title: row.media_title,
+      media_poster: row.media_poster,
+      user_rating: row.user_rating,
+      username: row.username,
+      avatar_url: row.avatar_url,
+      media_release: row.media_release,
+      media_rating: row.media_rating,
+      iswatchlisted: row.iswatchlisted,
+      iswatched: row.iswatched,
+      isfavorited: row.isfavorited,
+      isreviewd: row.isreviewd,
+      iswriten: row.iswriten,
+      rating_by_app: row.rating_by_app,
+      created: formateTime(row.created),
+    }
+  })
+}
 export default router

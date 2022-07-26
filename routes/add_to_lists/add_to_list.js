@@ -117,6 +117,7 @@ router.get('/items/:id', asyncHandler(async (req, res, next) => {
   const { id } = req.params
   const { username } = req.query
   const { rows } = await pool.query(`select *,
+  
     (case when list_items.media_type ='movie' then (select release from movies where id=list_items.media_id)
       when list_items.media_type='tv' then (select release from tvshows where id=list_items.media_id)
       else 'N/A' end) as media_release,
@@ -137,6 +138,7 @@ router.get('/items/:id', asyncHandler(async (req, res, next) => {
       and favorites.media_type=list_items.media_type)) as isfavorited,
       (exists  (select 1 from reviews where reviews.creator_username='${username}'
       and reviews.movie->>'id' = list_items.media_id and reviews.movie->>'type'=list_items.media_type)) as isreviewd
+      ,(select rating from apprating where id = list_items.media_id and type=list_items.media_type) as rating_by_app 
    from list_items where review_id = $1
   order by created_at;`, [id])
 

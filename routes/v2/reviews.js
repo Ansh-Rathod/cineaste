@@ -35,6 +35,7 @@ function formatResult(rows, isFollow) {
 			display_name: row.display_name,
 			avatar_url: row.avatar_url,
 			movie: row.movie,
+			critic: row.critic,
 			media: row.media,
 			likes: row.likes,
 			replies: row.replies,
@@ -253,7 +254,7 @@ router.get(
 
 		const offset = (page ?? 0) * 20
 		const { rows } = await pool.query(
-			`select media_id,media_type,media_title,media_poster,media_rating as user_rating,
+			`select media_id,media_type,media_title,media_poster,media_rating as user_rating,username,
 					(select avatar_url from users where username=watched.username) as avatar_url,
 					(case when watched.media_type ='movie' then (select release from movies where id=watched.media_id)
 					when watched.media_type='tv' then (select release from tvshows where id=watched.media_id) 
@@ -273,6 +274,8 @@ router.get(
 					where favorites.username='${username}'
 					and favorites.media_id = watched.media_id 
 					and favorites.media_type=watched.media_type)) as isfavorited,
+					  (select id from reviews where reviews.creator_username=watched.username
+      and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type) as iswriten,
 					(exists  (select 1 from reviews where reviews.creator_username='${username}'
 					and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type)) as isreviewd
 					,(select rating from apprating where id = watched.media_id and type=watched.media_type) as rating_by_app 
