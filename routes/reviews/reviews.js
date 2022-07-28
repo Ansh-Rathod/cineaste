@@ -252,17 +252,11 @@ router.put(
 			from users where username = (select creator_username from reviews where id=$1);`,
 			[id, username]
 		)
-		console.log(rows)
-		console.log(rows[0].name === username)
-		console.log(rows[0].name)
-		console.log(username)
+
 		if (username != rows[0].name) {
-			console.log('username is not = name calling')
 			if (rows[0].title !== null) {
-				console.log('list  calling')
 
 				if (rows[0].token_id !== 'null') {
-					console.log('token_id is not \'null\'')
 
 					await sendNotification(
 						rows[0].token_id,
@@ -272,9 +266,7 @@ router.put(
 					)
 				}
 			} else {
-				console.log('review thought')
 				if (rows[0].token_id !== 'null') {
-					console.log('token_id is not \'null\' review')
 
 					await sendNotification(
 						rows[0].token_id,
