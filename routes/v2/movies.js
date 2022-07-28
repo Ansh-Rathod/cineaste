@@ -109,7 +109,7 @@ router.get(
        (select id from reviews where reviews.creator_username=watched.username
       and reviews.movie->>'id' = watched.media_id and reviews.movie->>'type'=watched.media_type) as iswriten
       ,(select rating from apprating where id = watched.media_id and type=watched.media_type) as rating_by_app 
-      from watched where username=$1 and media_rating != 0.0 order by created desc offset $2 limit 20; `,
+      from watched where username=$1 order by created desc offset $2 limit 20; `,
       [id, offset]
     )
 
