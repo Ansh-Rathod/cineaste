@@ -253,6 +253,9 @@ router.put(
 			[id, username]
 		)
 		console.log(rows)
+		console.log(rows[0].name === username)
+		console.log(rows[0].name)
+		console.log(username)
 		if (username != rows[0].name) {
 			console.log('username is not = name calling')
 			if (rows[0].title !== null) {
