@@ -248,7 +248,7 @@ router.put(
 			(select display_name from users where username=$2) as display_name,
 			(select avatar_url from users where username=$2) as avatar_url,
 			(select body from reviews where id=$1) as body,
-			(select list_id from reviews where id=$1) as title
+			(select title from reviews where id=$1) as title
 			from users where username = (select creator_username from reviews where id=$1);`,
 			[id, username]
 		)
