@@ -244,8 +244,8 @@ router.put(
 		])
 		const { rows } = await pool.query(
 			`select token_id,
+			users.username as name,
 			(select display_name from users where username=$2) as display_name,
-			(select username from users where username=$2) as name,
 			(select avatar_url from users where username=$2) as avatar_url,
 			(select body from reviews where id=$1) as body,
 			(select list_id from reviews where id=$1) as title
