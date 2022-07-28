@@ -1,6 +1,7 @@
 SET CLIENT_ENCODING TO 'utf8';
 drop schema public cascade;
 create schema public;
+
 -- eR5vZ-JcXKaE5Mv
 -- pg_dump -U postgres --table=movies --data-only --column-inserts postgres > data.sql
 -- pg_dump -U username -h localhost databasename >> sqlfile.sql
@@ -10,7 +11,8 @@ create schema public;
 -- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ansh;
 -- GRANT ALL PRIVILEGES ON DATABASE postgres to ansh;
 -- GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ansh;
-
+-- 152313
+-- 154554
 CREATE TABLE users (
   id            varchar(255) PRIMARY KEY NOT NULL UNIQUE,
   username      text NOT NULL UNIQUE,

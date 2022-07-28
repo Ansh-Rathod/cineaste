@@ -263,11 +263,37 @@ const endpoints = [
 	// 	end: '2021-12-31',
 	// 	page: 186,
 	// },
+
 	// {
-	// 	start: '2022-05-01',
-	// 	end: '2022-12-31',
-	// 	page: 291,
+	// 	start: '2019-01-01',
+	// 	end: '2019-05-01',
+	// 	page: 486,
 	// },
+	// {
+	// 	start: '2019-05-01',
+	// 	end: '2019-09-01',
+	// 	page: 443,
+	// },
+	// {
+	// 	start: '2019-09-01',
+	// 	end: '2019-12-01',
+	// 	page: 447,
+	// },
+	// {
+	// 	start: '2019-12-01',
+	// 	end: '2019-12-31',
+	// 	page: 121,
+	// },
+	// {
+	// 	start: '2022-01-01',
+	// 	end: '2022-05-31',
+	// 	page: 481,
+	// },
+	{
+		start: '2022-05-01',
+		end: '2022-12-31',
+		page: 356,
+	},
 	// {
 	// 	year: '2022',
 	// 	page: 500,
@@ -365,7 +391,7 @@ app.get(
 			var endpoint = endpoints[j]
 			for (let i = 1; i <= endpoint.page; i++) {
 				const { data } = await axios.get(
-					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&include_adult=true&page=${i}`
+					`https://api.themoviedb.org/3/discover/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&primary_release_date.gte=${endpoint.start}&primary_release_date.lte=${endpoint.end}&page=${i}`
 				)
 
 				for (let index = 0; index < data.results.length; index++) {
@@ -374,7 +400,7 @@ app.get(
 						`insert into movies 
 						(id,
 						 title,
-release,
+						 release,
 						 rating,
 						 poster,
 						 language,
@@ -725,49 +751,53 @@ const tvEndpoint = [
 	// 	page: 21,
 	// },
 	{
-		year: '1980',
-		page: 19,
-	},
-	{
-		year: '1979',
-		page: 19,
-	},
-	{
-		year: '1978',
-		page: 19,
-	},
-	{
-		year: '1977',
-		page: 19,
-	},
-	{
-		year: '1976',
-		page: 19,
-	},
-	{
-		year: '1975',
-		page: 19,
-	},
-	{
-		year: '1974',
-		page: 19,
-	},
-	{
-		year: '1973',
-		page: 19,
-	},
-	{
-		year: '1972',
-		page: 19,
-	},
-	{
-		year: '1971',
-		page: 19,
-	},
-	{
-		year: '1970',
-		page: 19,
-	},
+		year: '2022',
+		page: 283,
+	}
+	// {
+	// 	year: '1980',
+	// 	page: 19,
+	// },
+	// {
+	// 	year: '1979',
+	// 	page: 19,
+	// },
+	// {
+	// 	year: '1978',
+	// 	page: 19,
+	// },
+	// {
+	// 	year: '1977',
+	// 	page: 19,
+	// },
+	// {
+	// 	year: '1976',
+	// 	page: 19,
+	// },
+	// {
+	// 	year: '1975',
+	// 	page: 19,
+	// },
+	// {
+	// 	year: '1974',
+	// 	page: 19,
+	// },
+	// {
+	// 	year: '1973',
+	// 	page: 19,
+	// },
+	// {
+	// 	year: '1972',
+	// 	page: 19,
+	// },
+	// {
+	// 	year: '1971',
+	// 	page: 19,
+	// },
+	// {
+	// 	year: '1970',
+	// 	page: 19,
+	// },
 ]
 
 app.get(
@@ -887,6 +917,130 @@ app.get(
 		}
 		console.log(`\n//////${endpoint.year} completed//////\n\n\n\n`)
 		res.json('done')
+	})
+)
+
+
+
+
+app.get(
+	'/movies/search',
+	asyncHandler(async (req, res, next) => {
+		const { query } = req.query
+		let movies = []
+
+		for (let i = 1; i <= 5; i++) {
+			const { data } = await axios.get(
+				`https://api.themoviedb.org/3/search/movie?api_key=b6e66a75ceca7996c5772ddd0656dd1b&page=${i}&query=${query}`
+			)
+			for (let index = 0; index < data.results.length; index++) {
+				const movie = data.results[index]
+				const { rows } = await pool.query(
+					`insert into movies 
+						(id,
+						 title,
+						 release,
+						 rating,
+						 poster,
+						 language,
+						 backdrop,
+						 overview,
+						 genres,
+						 popularity,
+						 adult)
+             values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+             on conflict (id) do update set 
+					 title=$2,
+					 release=$3,
+					 rating=$4,
+					 poster=$5,
+					 language=$6,
+					 backdrop=$7,
+					 overview=$8,
+					 genres=$9,
+					 popularity=$10,
+					 adult=$11 returning *;`,
+					[
+						movie.id,
+						movie.title,
+						movie.release_date,
+						movie.vote_average,
+						movie.poster_path,
+						movie.original_language,
+						movie.backdrop_path,
+						movie.overview,
+						movie.genre_ids,
+						movie.popularity,
+						movie.adult,
+					]
+				)
+				movies.push(rows[0])
+			}
+		}
+		res.json({
+			length: movies.length,
+			results: movies
+		})
+	})
+)
+
+
+app.get(
+	'/tv/search',
+	asyncHandler(async (req, res, next) => {
+		const { query } = req.query
+		let movies = []
+
+		for (let i = 1; i <= 5; i++) {
+			const { data } = await axios.get(
+				`https://api.themoviedb.org/3/search/tv?api_key=b6e66a75ceca7996c5772ddd0656dd1b&page=${i}&query=${query}`
+			)
+			for (let index = 0; index < data.results.length; index++) {
+				const movie = data.results[index]
+				const { rows } = await pool.query(
+					`insert into tvshows 
+						(id,
+						 title,
+                                     release,
+						 rating,
+						 poster,
+						 language,
+						 backdrop,
+						 overview,
+						 popularity,
+						 genres)
+                               values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+                               on conflict (id) do update set
+					 title=$2,
+					 release=$3,
+					 rating=$4,
+					 poster=$5,
+					 language=$6,
+					 backdrop=$7,
+					 overview=$8,
+					 popularity=$9,
+					 genres=$10 returning *;`,
+					[
+						movie.id,
+						movie.name,
+						movie.first_air_date,
+						movie.vote_average,
+						movie.poster_path,
+						movie.original_language,
+						movie.backdrop_path,
+						movie.overview,
+						movie.popularity,
+						movie.genre_ids,
+					]
+				)
+				movies.push(rows[0])
+			}
+		}
+
+		res.json({
+			length: movies.length,
+			results: movies
+		})
 	})
 )
 
