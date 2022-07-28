@@ -323,6 +323,29 @@ router.get(
 )
 
 router.get(
+	'/list/:id',
+	asyncHandler(async (req, res, next) => {
+		const { id } = req.params
+		const { username } = req.query
+		const { rows } = await pool.query(
+			`SELECT reviews.id,creator_username,display_name,avatar_url,movie,media,likes,replies,body,reviews.created_at,repling_to,mentions,thought_on,
+			title,list_images,list_id,
+			users.critic,
+			(select count(*) from list_items where review_id=reviews.list_id),
+			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
+			(exists (select 1 from report_reviews where report_reviews.review_id=reviews.id and report_reviews.reportd_by='${username}'))
+			reported FROM reviews 
+			LEFT JOIN users on reviews.creator_username=users.username  
+			WHERE reviews.list_id='${id}';
+			`
+		)
+
+		res.status(200).send({ success: true, results: formatResultV2(rows) })
+	})
+)
+
+
+router.get(
 	'/hashtags',
 	asyncHandler(async (req, res, next) => {
 		const { query } = req.query
