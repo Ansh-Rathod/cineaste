@@ -518,6 +518,8 @@ router.get(
 			movie,
 			thought_on,likes,replies,body,reviews.created_at,repling_to,mentions,
 			users.critic,
+			title,list_images,list_id,
+			(select count(*) from list_items where review_id=reviews.list_id),
 			(exists  (select 1 from liked where liked.user_id='${username}' and liked.review_id =reviews.id)) as liked,
 			(exists (select 1 from report_reviews where review_id=reviews.id and reportd_by='${username}')) reported
 			from reviews 
@@ -526,8 +528,36 @@ router.get(
 			`
 		)
 
-		res.status(200).send({ success: true, results: formatResult(rows) })
+		res.status(200).send({ success: true, results: formatResultV2(rows) })
 	})
 )
 
+
+function formatResultV2(rows, isFollow) {
+	return rows.map((row) => {
+		return {
+			id: row.id,
+			creator_username: row.creator_username,
+			display_name: row.display_name,
+			avatar_url: row.avatar_url,
+			movie: row.movie,
+			media: row.media,
+			likes: row.likes,
+			replies: row.replies,
+			repling_to: row.repling_to,
+			mentions: row.mentions,
+			body: row.body,
+			isLiked: row.liked,
+			isReported: row.reported,
+			thought_on: row.thought_on,
+			isFollow: isFollow,
+			title: row.title,
+			list_id: row.list_id,
+			list_images: row.list_images,
+			count: row.count,
+			critic: row.critic,
+			created_at: formateTime(row.created_at),
+		}
+	})
+}
 export default router
