@@ -27,8 +27,8 @@ router.get(
         and reviews.movie->>'id' = movies.id and reviews.movie->>'type'='movie')) as isreviewd,
         (select rating from apprating where id = movies.id and type='movie') as rating_by_app
         from movies
-        where language = $1 and adult = false and
-        poster is not null and (release)::timestamp > current_date order by release limit 20;`,
+        where  (language = $1 and poster is not null and release is not null) 
+        and cast((movies.release) as timestamp) > now() - interval '7 days' order by release limit 20;`,
       [language]
     )
     res.status(200).json({ success: true, results: rows })

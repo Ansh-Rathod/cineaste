@@ -963,7 +963,8 @@ app.get(
 					[
 						movie.id,
 						movie.title,
-						movie.release_date,
+						(movie.release_date == null) ? movie.release_date :
+							(movie.release_date.length === 0) ? null : movie.release_date,
 						movie.vote_average,
 						movie.poster_path,
 						movie.original_language,
@@ -1009,8 +1010,8 @@ app.get(
 						 overview,
 						 popularity,
 						 genres)
-                               values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-                               on conflict (id) do update set
+           values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+           on conflict (id) do update set
 					 title=$2,
 					 release=$3,
 					 rating=$4,
