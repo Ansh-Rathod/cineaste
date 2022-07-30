@@ -11,8 +11,8 @@ router.post(
 		const { rows } = await getUser(req.body.id, false)
 		if (rows.length == 0) {
 			await pool.query(
-				`update users set token_id = 'null' where device_id = $1`,
-				[req.body.device_id]
+				`update users set token_id = 'null' where lower(device_id) = $1`,
+				[req.body.device_id.toLowerCase()]
 			)
 
 			await createNewUser(req.body)
@@ -25,8 +25,8 @@ router.post(
 			})
 		} else {
 			await pool.query(
-				`update users set token_id = 'null' where device_id = $1`,
-				[req.body.device_id]
+				`update users set token_id = 'null' where lower(device_id) = $1`,
+				[req.body.device_id.toLowerCase()]
 			)
 			await pool.query(
 				`update users set token_id = $1, device_id= $3 where id = $2;`,
